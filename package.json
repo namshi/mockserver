@@ -1,0 +1,30 @@
+{
+  "name": "testme",
+  "version": "0.0.1",
+  "description": "Easily mock your webservices while testing frontends.",
+  "main": "testme.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/namshi/testme"
+  },
+  "keywords": [
+    "test",
+    "mock",
+    "api",
+    "webservice",
+    "rest",
+    "namshi"
+  ],
+  "author": "Mohammad Hallal <mohd.hallal@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/namshi/testme/issues"
+  },
+  "homepage": "https://github.com/namshi/testme",
+  "dependencies": {
+    "mocha": "^1.20.1"
+  }
+}
