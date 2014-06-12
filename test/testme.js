@@ -51,6 +51,36 @@ describe('testme', function(){
            assert.equal(res.body, 'Welcome!');
            assert.equal(res.status, 200);
            assert.equal(JSON.stringify(res.headers), '{"Content-Type":"text"}');
+       }),
+       it('should be able to handle multiple headers', function () {
+           req.url    = '/multiple-headers/';
+           req.method = 'GET';
+           testme(fixturesDirectory)(req, res);
+
+           assert.equal(res.status, 200);
+           assert.equal(JSON.stringify(res.headers), '{"Content-Type":"text/xml; charset=utf-8","Cache-Control":"public, max-age=300"}');
+       }),
+       it('should be able to handle status codes different than 200', function () {
+           req.url    = '/return-204';
+           req.method = 'GET';
+           testme(fixturesDirectory)(req, res);
+
+           assert.equal(res.status, 204);
+       }),
+       it('should be able to handle HTTP methods other than GET', function () {
+           req.url    = '/return-200';
+           req.method = 'POST';
+           testme(fixturesDirectory)(req, res);
+
+           assert.equal(res.status, 200);
+       }),
+       it('should be able to handle empty bodies', function () {
+           req.url    = '/return-empty-body';
+           req.method = 'GET';
+           testme(fixturesDirectory)(req, res);
+
+           assert.equal(res.status, 204);
+           assert.equal(res.body, '');
        })
     })
 });
