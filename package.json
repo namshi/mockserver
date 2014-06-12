@@ -1,6 +1,6 @@
 {
   "name": "testme",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Easily mock your webservices while testing frontends.",
   "main": "testme.js",
   "scripts": {
