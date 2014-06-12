@@ -78,7 +78,7 @@ Content-Type: text/xml; charset=utf-8
 }
 ```
 
-Check [our own mocks](https://github.com/namshi/testme/tree/master/test/fixtures) as a reference.
+Check [our own mocks](https://github.com/namshi/testme/tree/master/test/mocks) as a reference.
 
 ## Variations
 
