@@ -22,7 +22,8 @@ describe('testme', function(){
 
         req = {
             url:    null,
-            method: null
+            method: null,
+            headers: []
         }
     });
     describe('testme()', function(){
@@ -81,6 +82,15 @@ describe('testme', function(){
 
            assert.equal(res.status, 204);
            assert.equal(res.body, '');
+       }),
+       it('should be able to support variations for a specific resource', function () {
+           req.url    = '/test';
+           req.method = 'GET';
+           req.headers["testme-variation"] = 'failure';
+           testme(fixturesDirectory)(req, res);
+
+           assert.equal(res.status, 500);
+           assert.equal(res.body, 'Ouch!');
        })
     })
 });
