@@ -80,6 +80,20 @@ Content-Type: text/xml; charset=utf-8
 
 Check [our own mocks](https://github.com/namshi/testme/tree/master/test/fixtures) as a reference.
 
+## Variations
+
+Sometimes it's quite handy to be able to support different responses for
+the "same" request, for example when you want to test that your frontend
+behaves correctly when POSTing at `/users` and in the case that the server
+could return either a `200` or a `500` error.
+
+These are called "variations", and you can easily implement them by
+sending the `Testme-Variation` header in your request.
+
+For example, if you issue a POST request to `/users` with `Testme-Variation: failure`
+you can then define a mock called `users_POST_failure` and put the related content
+there.
+
 ## Tests
 
 Tests run on travis, but if you wanna run them locally you simply

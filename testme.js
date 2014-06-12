@@ -33,11 +33,12 @@ var parse = function (content) {
 };
 
 var testme = {
-    directory:  null,
-    use: function(directory) {
+    variationHeader: "testme-variation",
+    directory:       ".",
+    use:             function(directory) {
         this.directory = directory;
     },
-    handle: function(req, res) {
+    handle:          function(req, res) {
         var url = req.url;
 
         if (url.charAt(0) === '/') {
@@ -49,6 +50,10 @@ var testme = {
         }
 
         var mockName = url + '_' + req.method.toUpperCase();
+
+        if (req.headers && req.headers[testme.variationHeader]) {
+            mockName += '_' + req.headers[testme.variationHeader];
+        }
 
         try {
             var content = fs.readFileSync(testme.directory + '/' + mockName, {encoding: 'utf8'});
