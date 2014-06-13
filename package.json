@@ -1,14 +1,14 @@
 {
-  "name": "testme",
+  "name": "mockserver",
   "version": "0.5.0",
   "description": "Easily mock your webservices while testing frontends.",
-  "main": "testme.js",
+  "main": "mockserver.js",
   "scripts": {
     "test": "mocha"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/namshi/testme"
+    "url": "https://github.com/namshi/mockserver"
   },
   "keywords": [
     "test",
@@ -21,9 +21,9 @@
   "author": "Mohammad Hallal <mohd.hallal@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/namshi/testme/issues"
+    "url": "https://github.com/namshi/mockserver/issues"
   },
-  "homepage": "https://github.com/namshi/testme",
+  "homepage": "https://github.com/namshi/mockserver",
   "dependencies": {
     "mocha": "*"
   }

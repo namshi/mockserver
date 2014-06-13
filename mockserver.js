@@ -32,8 +32,8 @@ var parse = function (content) {
     return {status: status, headers: headers, body: body};
 };
 
-var testme = {
-    variationHeader: "testme-variation",
+var mockserver = {
+    variationHeader: "mockserver-variation",
     directory:       ".",
     use:             function(directory) {
         this.directory = directory;
@@ -51,12 +51,12 @@ var testme = {
 
         var mockName = url + '_' + req.method.toUpperCase();
 
-        if (req.headers && req.headers[testme.variationHeader]) {
-            mockName += '_' + req.headers[testme.variationHeader];
+        if (req.headers && req.headers[mockserver.variationHeader]) {
+            mockName += '_' + req.headers[mockserver.variationHeader];
         }
 
         try {
-            var content = fs.readFileSync(testme.directory + '/' + mockName, {encoding: 'utf8'});
+            var content = fs.readFileSync(mockserver.directory + '/' + mockName, {encoding: 'utf8'});
             var mock = parse(content);
             res.writeHead(mock.status, mock.headers);
 
@@ -69,7 +69,7 @@ var testme = {
 };
 
 module.exports = function(directory){
-    testme.use(directory);
+    mockserver.use(directory);
 
-    return testme.handle;
+    return mockserver.handle;
 };
