@@ -39,7 +39,7 @@ var mockserver = {
         this.directory = directory;
     },
     handle:          function(req, res) {
-        var url = req.url;
+        var url = req.url === '/' ? 'homepage' : req.url;
 
         if (url.charAt(0) === '/') {
             url = req.url.substr(1);

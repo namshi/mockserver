@@ -6,7 +6,7 @@ var req;
 var mocksDirectory = './test/mocks';
 
 describe('mockserver', function(){
-    before(function() {
+    beforeEach(function() {
         res = {
             headers: null,
             status:  null,
@@ -91,6 +91,13 @@ describe('mockserver', function(){
 
            assert.equal(res.status, 500);
            assert.equal(res.body, 'Ouch!');
+       }),
+       it('should be able to correctly map /', function () {
+           req.url    = '/';
+           req.method = 'GET';
+           mockserver(mocksDirectory)(req, res);
+
+           assert.equal(res.body, 'homepage');
        })
     })
 });
