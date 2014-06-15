@@ -56,7 +56,7 @@ var mockserver = {
         }
 
         try {
-            var content = fs.readFileSync(mockserver.directory + '/' + mockName, {encoding: 'utf8'});
+            var content = fs.readFileSync(mockserver.directory + '/' + mockName + '.mock', {encoding: 'utf8'});
             var mock = parse(content);
             res.writeHead(mock.status, mock.headers);
 

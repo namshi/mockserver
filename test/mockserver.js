@@ -86,7 +86,7 @@ describe('mockserver', function(){
        it('should be able to support variations for a specific resource', function () {
            req.url    = '/test';
            req.method = 'GET';
-           req.headers["mockserver-variation"] = 'failure';
+           req.headers['mockserver-variation'] = 'failure';
            mockserver(mocksDirectory)(req, res);
 
            assert.equal(res.status, 500);
@@ -98,7 +98,23 @@ describe('mockserver', function(){
            mockserver(mocksDirectory)(req, res);
 
            assert.equal(res.body, 'homepage');
-       })
+       }),
+       it('should be able to map multi-level urls', function () {
+           req.url    = '/test1/test2';
+           req.method = 'GET';
+           mockserver(mocksDirectory)(req, res);
+
+           assert.equal(res.body, 'multi-level url');
+       }),
+       it('should be able to map multi-level urls with variation header', function () {
+           req.url    = 'test1/test2';
+           req.method = 'GET';
+           req.headers['mockserver-variation'] = '400';
+           mockserver(mocksDirectory)(req, res);
+
+           assert.equal(res.status, 400);
+           assert.equal(res.body, 'bad request');
+       });
     })
 });
 
