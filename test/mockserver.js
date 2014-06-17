@@ -114,6 +114,13 @@ describe('mockserver', function(){
 
            assert.equal(res.status, 400);
            assert.equal(res.body, 'bad request');
+       }),
+       it('should be able to handle GET parameters', function () {
+           req.url    = '/test?a=b';
+           req.method = 'GET';
+           mockserver(mocksDirectory)(req, res);
+
+           assert.equal(res.status, 200);
        });
     })
 });
