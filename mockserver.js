@@ -21,7 +21,7 @@ var parse = function (content) {
     content.forEach(function(line) {
         if (headerEnd) {
             body = body + line;
-        } else if (line === '') {
+        } else if (line === '' || line === '\r') {
             headerEnd = true;
         } else {
             var header = parseHeader(line);
@@ -49,7 +49,7 @@ var mockserver = {
             url = url.substr(0, url.length - 1);
         }
 
-        var mockName = url + '_' + req.method.toUpperCase();
+        var mockName = url.replace('?', '--') + '_' + req.method.toUpperCase();
 
         if (req.headers && req.headers[mockserver.variationHeader]) {
             mockName += '_' + req.headers[mockserver.variationHeader];
