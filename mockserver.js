@@ -1,4 +1,5 @@
 var fs = require('fs');
+var join = require('path').join;
 
 var parseStatus = function (header) {
     return header.split(' ')[1];
@@ -39,24 +40,26 @@ var mockserver = {
         this.directory = directory;
     },
     handle:          function(req, res) {
-        var url = req.url === '/' ? 'homepage' : req.url;
+        var url = req.url;
+        var path = url;
 
-        if (url.charAt(0) === '/') {
-            url = req.url.substr(1);
+        var queryIndex = url.indexOf('?'),
+            query = queryIndex >= 0 ? url.substring(queryIndex).replace(/\?/g, '--') : '',
+            method = req.method.toUpperCase();
+
+        if (queryIndex > 0) {
+            path = url.substring(0, queryIndex);
         }
-
-        if (url.charAt(url.length - 1) === '/') {
-            url = url.substr(0, url.length - 1);
-        }
-
-        var mockName = url.replace('?', '--') + '_' + req.method.toUpperCase();
 
         if (req.headers && req.headers[mockserver.variationHeader]) {
-            mockName += '_' + req.headers[mockserver.variationHeader];
+            method += '_' + req.headers[mockserver.variationHeader];
         }
 
+        var mockName =  method + query + '.mock';
+        var mockFile = join(mockserver.directory, path, mockName);
+
         try {
-            var content = fs.readFileSync(mockserver.directory + '/' + mockName + '.mock', {encoding: 'utf8'});
+            var content = fs.readFileSync(mockFile, {encoding: 'utf8'});
             var mock = parse(content);
             res.writeHead(mock.status, mock.headers);
 

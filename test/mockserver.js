@@ -122,6 +122,14 @@ describe('mockserver', function(){
 
            assert.equal(res.status, 200);
        });
+       it('should be able to support variations for a specific resource with GET params', function () {
+           req.url = '/test?a=b';
+           req.method = 'GET';
+           req.headers['mockserver-variation'] = 'failure';
+           mockserver(mocksDirectory)(req, res);
+
+           assert.equal(res.status, 500);
+           assert.equal(res.body, 'Ouch! (with query)');
+       });
     })
 });
-
