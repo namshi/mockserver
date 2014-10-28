@@ -32,7 +32,7 @@ This will run a simple HTTP webserver, handled by mockserver, on port
 9001.
 
 At this point you can simply define your first mock: create a file in
-`path/to/your/mocks` called `example-response_GET.mock`:
+`path/to/your/mocks/example-response` called `GET.mock`:
 
 ```
 HTTP/1.1 200 OK
@@ -58,11 +58,11 @@ As you probably understood, mock files' naming conventions are based
 on the response that they are going to serve:
 
 ```
-$REQUEST-PATH_$HTTP-METHOD.mock
+$REQUEST-PATH/$HTTP-METHOD.mock
 ```
 
 For example, let's say that you wanna mock the response of a POST request
-to `/users`, you would simply need to create a file named `users_POST`.
+to `/users`, you would simply need to create a file named `POST.mock` under `users/`.
 
 The content of the mock files needs to be a valid HTTP response, for example:
 
@@ -91,21 +91,36 @@ These are called "variations", and you can easily implement them by
 sending the `mockserver-Variation` header in your request.
 
 For example, if you issue a POST request to `/users` with `mockserver-Variation: failure`
-you can then define a mock called `users_POST_failure.mock` and put the related content
+you can then define a mock called `users/POST_failure.mock` and put the related content
 there.
 
 ## Query String Parameters
 
-In order to support query string parameters in the mocked files, make sure to replace `?`
-with `--` in the mock file name.
+In order to support query string parameters in the mocked files, replace all occurrences of `?` with `--`, then
+append the entire string to the end of the file.
 
 ```
 GET /hello?a=b
 
-hello--a=b_GET.mock
+hello/GET--a=b.mock
+```
+
+```
+GET /test?a=b&c=d?
+
+test/GET--a=b&c=d--.mock
 ```
 
 (This has been introduced to overcome issues in file naming on windows)
+
+To combine variations and query parameters, simply add the variation *then* add the parameters:
+
+```
+GET /hello?a=b
+mockserver-Variation: failure
+
+hello/GET_failure--a=b.mock
+```
 
 ## Tests
 
