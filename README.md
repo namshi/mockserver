@@ -80,19 +80,52 @@ Content-Type: text/xml; charset=utf-8
 
 Check [our own mocks](https://github.com/namshi/mockserver/tree/master/test/mocks) as a reference.
 
-## Variations
+## Custom Headers
 
-Sometimes it's quite handy to be able to support different responses for
-the "same" request, for example when you want to test that your frontend
-behaves correctly when POSTing at `/users` and in the case that the server
-could return either a `200` or a `500` error.
+You can specify request headers to include, which allows you to change the response based on what headers are
+provided.  To do this, you need to let mockserver know which headers matter, by setting the
+`headers` array on the mockserver object, like so:
 
-These are called "variations", and you can easily implement them by
-sending the `mockserver-Variation` header in your request.
+```js
+var mockserver = require('mockserver');
+mockserver.headers = ['Authorization', 'X-My-Header'];
+```
 
-For example, if you issue a POST request to `/users` with `mockserver-Variation: failure`
-you can then define a mock called `users/POST_failure.mock` and put the related content
-there.
+Any headers that are set and occur within the array will now be appended to the filename, immediately after the
+HTTP method, like so:
+
+```
+GET /hello
+Authorization: 12345
+
+hello/GET_Authorization=12345.mock
+```
+
+```
+GET /hello
+X-My-Header: cow
+Authorization: 12345
+
+hello/GET_Authorization=12345_X-My-Header=cow.mock
+```
+
+**Note:** The order of the headers within the `headers` array determines the order of the values within the filename.
+
+The server will always attempt to match the file with the most tracked headers, then it will try permutations of
+headers until it finds one that matches.  This means that, in the previous example, the server will look for files
+in this order:
+
+```
+hello/GET_Authorization=12345_X-My-Header=cow.mock
+hello/GET_X-My-Header_Authorization=12345=cow.mock
+hello/GET_Authorization=12345.mock
+hello/GET_X-My-Header=cow.mock
+hello/GET.mock
+```
+
+The first one matched is the one returned, favoring more matches and headers earlier in the array.
+
+The `headers` array can be set or modified at any time.
 
 ## Query String Parameters
 
@@ -113,13 +146,13 @@ test/GET--a=b&c=d--.mock
 
 (This has been introduced to overcome issues in file naming on windows)
 
-To combine variations and query parameters, simply add the variation *then* add the parameters:
+To combine custom headers and query parameters, simply add the headers *then* add the parameters:
 
 ```
 GET /hello?a=b
-mockserver-Variation: failure
+Authorization: 12345
 
-hello/GET_failure--a=b.mock
+hello/GET_Authorization=12345--a=b.mock
 ```
 
 ## Tests
