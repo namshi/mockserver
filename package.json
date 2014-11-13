@@ -25,6 +25,9 @@
   },
   "homepage": "https://github.com/namshi/mockserver",
   "dependencies": {
-    "mocha": "*"
+    "js-combinatorics": "^0.4.0"
+  },
+  "devDependencies": {
+    "mocha": "^2.0.1"
   }
 }
