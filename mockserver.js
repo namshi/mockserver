@@ -32,7 +32,7 @@ var parse = function (content) {
         }
     });
 
-    body = bodyContent.join('\r');
+    body = bodyContent.join('\n');
 
     return {status: status, headers: headers, body: body};
 };
