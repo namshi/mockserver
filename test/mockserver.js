@@ -161,5 +161,17 @@ describe('mockserver', function() {
             assert.equal(res.status, 200);
             assert.equal(res.body, 'that is a long filename');
         });
+        it('should keep line feeds (U+000A)', function() {
+            process('/keep-line-feeds', 'GET');
+
+            assert.equal(res.body, 
+                'ColumnA	ColumnB	ColumnC\n' +
+                'A1	B1	C1\n' +
+                'A2	B2	C2\n' +
+                'A3	B3	C3\n'
+              );
+            assert.equal(res.status, 200);
+            assert.equal(JSON.stringify(res.headers), '{"Content-Type":"text/plain; charset=utf-8"}');
+        });
     })
 });
