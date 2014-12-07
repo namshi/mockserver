@@ -13,16 +13,17 @@ var parseHeader = function (header) {
 };
 
 var parse = function (content) {
-    var headers   = {};
-    var body      = '';
-    content       = content.split('\n');
-    var status    = parseStatus(content[0]);
-    var headerEnd = false;
+    var headers         = {};
+    var body;
+    var bodyContent     = [];
+    content             = content.split('\n');
+    var status          = parseStatus(content[0]);
+    var headerEnd       = false;
     delete content[0];
 
     content.forEach(function(line) {
         if (headerEnd) {
-            body = body + line;
+            bodyContent.push(line);
         } else if (line === '' || line === '\r') {
             headerEnd = true;
         } else {
@@ -30,6 +31,8 @@ var parse = function (content) {
             headers[header.key] = header.value;
         }
     });
+
+    body = bodyContent.join('\n');
 
     return {status: status, headers: headers, body: body};
 };

@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+
+ColumnA	ColumnB	ColumnC
+A1	B1	C1
+A2	B2	C2
+A3	B3	C3
