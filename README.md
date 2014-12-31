@@ -21,7 +21,7 @@ $ mockserver.js -p 9001 -m test/mocks
 Mockserver serving mocks under "test/mocks" at http://localhost:8080
 ```
 
-or as a regular NPM mobule if you need to use it as
+or as a regular NPM module if you need to use it as
 a library within your code:
 
 ``` bash
