@@ -11,15 +11,24 @@ backend is really ready or not.
 
 ## Installation
 
-Simply install this library through NPM:
+Mockserver can be installed globally if you need
+to run it as a command:
+
+```
+$ npm install -g mockserver
+
+$ mockserver.js -p 9001 -m test/mocks
+Mockserver serving mocks under "test/mocks" at http://localhost:8080
+```
+
+or as a regular NPM mobule if you need to use it as
+a library within your code:
 
 ``` bash
 npm install mockserver
 ```
 
-## Usage
-
-First of all, define where your mocked backend is gonna run:
+then in your test file:
 
 ``` javascript
 var http    =  require('http');
