@@ -1,6 +1,6 @@
 {
   "name": "mockserver",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Easily mock your webservices while testing frontends.",
   "main": "mockserver.js",
   "scripts": {
