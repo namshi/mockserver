@@ -17,7 +17,7 @@ to run it as a command:
 ```
 $ npm install -g mockserver
 
-$ mockserver.js -p 9001 -m test/mocks
+$ mockserver -p 8080 -m test/mocks
 Mockserver serving mocks under "test/mocks" at http://localhost:8080
 ```
 
@@ -136,7 +136,7 @@ The first one matched is the one returned, favoring more matches and headers ear
 
 The `headers` array can be set or modified at any time.
 
-## Query String Parameters
+## Query string parameters and POST body
 
 In order to support query string parameters in the mocked files, replace all occurrences of `?` with `--`, then
 append the entire string to the end of the file.
@@ -163,6 +163,10 @@ Authorization: 12345
 
 hello/GET_Authorization=12345--a=b.mock
 ```
+
+Similarly, you can do the same thing with the body of a POST request:
+if you send `Hello=World` as body of the request, mockserver will
+look for a file called `POST--Hello=World.mock`
 
 ## Tests
 

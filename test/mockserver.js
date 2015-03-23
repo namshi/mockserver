@@ -1,3 +1,4 @@
+var MockReq = require('mock-req');
 var assert = require("assert");
 var mockserver = require("./../mockserver");
 
@@ -25,7 +26,12 @@ describe('mockserver', function() {
         req = {
             url: null,
             method: null,
-            headers: []
+            headers: [],
+            on: function(event, cb) {
+              if (event === 'end') {
+                cb();
+              }
+            }
         }
     });
 
@@ -172,6 +178,25 @@ describe('mockserver', function() {
               );
             assert.equal(res.status, 200);
             assert.equal(JSON.stringify(res.headers), '{"Content-Type":"text/plain; charset=utf-8"}');
+        });
+        it('should be able to include POST bodies in the mock location', function(done) {
+            var req = new MockReq({
+                method: 'POST',
+                url: '/return-200',
+                headers: {
+                    'Accept': 'text/plain'
+                }
+            });
+            req.write('Hello=123')
+            req.end();
+            
+            mockserver(mocksDirectory)(req, res);
+            
+            req.on('end', function(){
+              assert.equal(res.body, 'Hella');
+              assert.equal(res.status, 200);
+              done();
+            })
         });
     })
 });
