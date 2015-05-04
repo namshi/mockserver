@@ -4,7 +4,7 @@
   "description": "Easily mock your webservices while testing frontends.",
   "main": "mockserver.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha -b"
   },
   "bin": {
     "mockserver": "bin/mockserver.js"

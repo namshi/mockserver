@@ -88,25 +88,41 @@ function getBodyOrQueryString(body, query) {
  * fancy body parsing in mockserver
  * for now).
  */
-function getBody(req) {
+function getBody(req, callback) {
   var body = '';
   
   req.on('data', function(b){
-    body = body + b.toString()
+    body = body + b.toString();
   });
-  
-  return body;
+
+  req.on('end', function() {    
+    callback(body);
+  });
+}
+
+function getMockedContent(path, prefix, body, query) {
+    var result;
+    var mockName =  prefix + getBodyOrQueryString(body, query) + '.mock';
+    var mockFile = join(mockserver.directory, path, mockName);
+    
+    if(fs.existsSync(mockFile)) {
+        try {
+            result = fs.readFileSync(mockFile, {encoding: 'utf8'});
+        } catch(err) {
+            // ignore file read errors, maybe we matched something by accident
+        }
+    }
+
+    return result;
 }
 
 var mockserver = {
-    directory:       ".",
+    directory:       '.',
     use:             function(directory) {
         this.directory = directory;
     },
     handle:          function(req, res) {
-      body = getBody(req);
-      
-      req.on('end', function(){
+      getBody(req, function(body) {
         var url = req.url;
         var path = url;
 
@@ -131,28 +147,20 @@ var mockserver = {
             });
         }
 
-
         // Now, permute the possible headers, and look for any matching files, prioritizing on
         // both # of headers and the original header order
         var content,
             permutations = [[]];
+
         if(headers.length) {
-            permutations = Combinatorics.permutationCombination(headers).toArray().sort(function(a, b) {return b.length - a.length});
+            permutations = Combinatorics.permutationCombination(headers).toArray().sort(function(a, b) { return b.length - a.length; });
             permutations.push([]);
         }
-        while(permutations.length) {
-            var mockName =  method + permutations.pop().join('') + getBodyOrQueryString(body, query) + '.mock';
-            var mockFile = join(mockserver.directory, path, mockName);
-            
-            if(fs.existsSync(mockFile)) {
-                try {
-                    content = fs.readFileSync(mockFile, {encoding: 'utf8'});
-                } catch(err) {
-                    // ignore file read errors, maybe we matched something by accident
-                }
-            }
-        }
 
+        while(permutations.length) {
+            var prefix = method + permutations.pop().join('');
+            content = getMockedContent(path, prefix, body, query) || content;
+        }
 
         if(content) {
             var mock = parse(content);
