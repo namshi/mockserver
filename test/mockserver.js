@@ -32,7 +32,7 @@ describe('mockserver', function() {
                 cb();
               }
             }
-        }
+        };
     });
 
     function process(url, method) {
@@ -42,6 +42,7 @@ describe('mockserver', function() {
     }
 
     describe('mockserver()', function() {
+
         it('should return a valid response', function() {
             process('/test', 'GET');
 
@@ -49,12 +50,14 @@ describe('mockserver', function() {
             assert.equal(res.status, 200);
             assert.equal(JSON.stringify(res.headers), '{"Content-Type":"text"}');
         });
+
         it('should return 404 if the mock does not exist', function() {
             process('/not-there', 'GET');
 
             assert.equal(res.status, 404);
             assert.equal(res.body, 'Not Mocked');
         });
+
         it('should be able to handle trailing slashes without changing the name of the mockfile', function() {
             process('/test/', 'GET');
 
@@ -62,6 +65,7 @@ describe('mockserver', function() {
             assert.equal(res.body, 'Welcome!');
             assert.equal(JSON.stringify(res.headers), '{"Content-Type":"text"}');
         });
+
         it('should be able to handle multiple headers', function() {
             process('/multiple-headers/', 'GET');
 
@@ -69,37 +73,44 @@ describe('mockserver', function() {
             assert.equal(JSON.stringify(res.headers),
                 '{"Content-Type":"text/xml; charset=utf-8","Cache-Control":"public, max-age=300"}');
         });
+
         it('should be able to handle status codes different than 200', function() {
             process('/return-204', 'GET');
 
             assert.equal(res.status, 204);
         });
+
         it('should be able to handle HTTP methods other than GET', function() {
             process('/return-200', 'POST');
 
             assert.equal(res.status, 200);
         });
+
         it('should be able to handle empty bodies', function() {
             process('/return-empty-body', 'GET');
 
             assert.equal(res.status, 204);
             assert.equal(res.body, '');
         });
+
         it('should be able to correctly map /', function() {
             process('/', 'GET');
 
             assert.equal(res.body, 'homepage');
         });
+
         it('should be able to map multi-level urls', function() {
             process('/test1/test2', 'GET');
 
             assert.equal(res.body, 'multi-level url');
         });
+
         it('should be able to handle GET parameters', function() {
             process('/test?a=b', 'GET');
 
             assert.equal(res.status, 200);
         });
+
         it('should be able track custom headers', function() {
             mockserver.headers = ['Authorization'];
 
@@ -117,6 +128,7 @@ describe('mockserver', function() {
             assert.equal(res.status, 200);
             assert.equal(res.body, 'admin authorized');
         });
+
         it('should attempt to fall back to a base method if a custom header is not found in a file', function() {
             mockserver.headers = ['Authorization'];
 
@@ -130,6 +142,7 @@ describe('mockserver', function() {
             assert.equal(res.status, 404);
             assert.equal(res.body, 'Not Mocked');
         });
+
         it('should look for alternate combinations of headers if a custom header is not found', function() {
             mockserver.headers = ['Authorization', 'X-Foo'];
 
@@ -159,6 +172,7 @@ describe('mockserver', function() {
             assert.equal(res.status, 200);
             assert.equal(res.body, 'header x-foo only');
         });
+
         it('should be able track custom headers with variation and query params', function() {
             mockserver.headers = ['Authorization', 'X-Foo'];
             req.headers['Authorization'] = 12;
@@ -167,6 +181,7 @@ describe('mockserver', function() {
             assert.equal(res.status, 200);
             assert.equal(res.body, 'that is a long filename');
         });
+
         it('should keep line feeds (U+000A)', function() {
             process('/keep-line-feeds', 'GET');
 
@@ -179,6 +194,7 @@ describe('mockserver', function() {
             assert.equal(res.status, 200);
             assert.equal(JSON.stringify(res.headers), '{"Content-Type":"text/plain; charset=utf-8"}');
         });
+
         it('should be able to include POST bodies in the mock location', function(done) {
             var req = new MockReq({
                 method: 'POST',
@@ -187,16 +203,38 @@ describe('mockserver', function() {
                     'Accept': 'text/plain'
                 }
             });
-            req.write('Hello=123')
+            req.write('Hello=123');
             req.end();
             
             mockserver(mocksDirectory)(req, res);
             
-            req.on('end', function(){
+            req.on('end', function() {
               assert.equal(res.body, 'Hella');
               assert.equal(res.status, 200);
               done();
-            })
+            });
         });
-    })
+
+        it('should be able to include POST json in the mock location', function(done) {
+            var req = new MockReq({
+                method: 'POST',
+                url: '/return-200',
+                headers: {
+                    'Accept': 'tapplication/json'
+                }
+            });
+            req.write('{"json": "yesPlease"}');
+            req.end();
+            
+            mockserver(mocksDirectory)(req, res);
+            
+            req.on('end', function() {
+              var jsonBody = JSON.parse(res.body);
+              
+              assert.equal(jsonBody.json, 'yes, we haZ it');
+              assert.equal(res.status, 200);
+              done();
+            });
+        });
+    });
 });

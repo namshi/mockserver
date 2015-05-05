@@ -168,6 +168,9 @@ Similarly, you can do the same thing with the body of a POST request:
 if you send `Hello=World` as body of the request, mockserver will
 look for a file called `POST--Hello=World.mock`
 
+In the same way, if your POST body is a json like `{"json": "yesPlease"}`,
+mockserver will look for a file called `POST--{"json": "yesPlease"}.mock`
+
 ## Tests
 
 Tests run on travis, but if you wanna run them locally you simply
