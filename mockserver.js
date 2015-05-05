@@ -69,7 +69,7 @@ function getBodyOrQueryString(body, query) {
     return '--' + query;
   }
   
-  if (body !== '') {
+  if (body && body !== '') {
     return '--' + body;
   }
   
@@ -101,19 +101,14 @@ function getBody(req, callback) {
 }
 
 function getMockedContent(path, prefix, body, query) {
-    var result;
-    var mockName =  prefix + getBodyOrQueryString(body, query) + '.mock';
+    var mockName =  prefix + (getBodyOrQueryString(body, query) || '') + '.mock';
     var mockFile = join(mockserver.directory, path, mockName);
     
-    if(fs.existsSync(mockFile)) {
-        try {
-            result = fs.readFileSync(mockFile, {encoding: 'utf8'});
-        } catch(err) {
-            // ignore file read errors, maybe we matched something by accident
-        }
+    try {
+        return fs.readFileSync(mockFile, {encoding: 'utf8'});
+    } catch(err) {
+        return (body || query) && getMockedContent(path, prefix);
     }
-
-    return result;
 }
 
 var mockserver = {
