@@ -111,6 +111,12 @@ describe('mockserver', function() {
             assert.equal(res.status, 200);
         });
 
+        it('should default to GET.mock if no matching parameter file is found', function() {
+            process('/test?a=c', 'GET');
+
+            assert.equal(res.status, 200);
+        });
+
         it('should be able track custom headers', function() {
             mockserver.headers = ['Authorization'];
 
@@ -235,6 +241,33 @@ describe('mockserver', function() {
               assert.equal(res.status, 200);
               done();
             });
+        });
+
+        it('Should default to POST.mock if no match for body is found', function(done) {
+            var req = new MockReq({
+                method: 'POST',
+                url: '/return-200',
+                headers: {
+                    'Accept': 'text/plain'
+                }
+            });
+            req.write('Hello=456');
+            req.end();
+            
+            mockserver(mocksDirectory)(req, res);
+            
+            req.on('end', function() {
+              assert.equal(res.status, 200);
+              done();
+            });
+        });
+
+        it('Should return 404 when no default .mock files are found', function() {
+            mockserver.headers = ['Authorization'];
+            req.headers['Authorization'] = 12;
+            process('/return-200?a=c', 'GET');
+
+            assert.equal(res.status, 404);
         });
     });
 });
