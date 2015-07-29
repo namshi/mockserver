@@ -51,35 +51,66 @@ var parse = function (content) {
     return {status: status, headers: headers, body: body};
 };
 
+
+/**
+ * Parser the content of a js file
+ * returning an HTTP-ish object with
+ * status code, headers and body.
+ */
+var parseJS = function (content) {
+    var headers = {};
+    var body;
+
+    content.headers.forEach(function(headerItem) {
+        var header = parseHeader(headerItem);
+        headers[header.key] = header.value;
+    })
+
+    if (typeof content.body === 'object') {
+        body = JSON.stringify(content.body);
+    } else {
+        body = content.body;
+    }
+
+    if (typeof content.status === 'number') {
+        status = content.status;
+    } else {
+        status = parseStatus(content.status);
+    }
+
+    return {status: status, headers: headers, body: body};
+};
+
+
 /**
  * Returns the body or query string to be used in
  * the mock name.
- * 
+ *
  * In any case we will prepend the value with a double
  * dash so that the mock files will look like:
- * 
+ *
  * POST--My-Body=123.mock
- * 
+ *
  * or
- * 
+ *
  * GET--query=string&hello=hella.mock
  */
 function getBodyOrQueryString(body, query) {
   if (query) {
     return '--' + query;
   }
-  
+
   if (body && body !== '') {
     return '--' + body;
   }
-  
+
   return body;
 }
 
 /**
  * Ghetto way to get the body
  * out of the request.
- * 
+ *
  * There are definitely better
  * ways to do this (ie. npm/body
  * or npm/body-parser) but for
@@ -90,25 +121,37 @@ function getBodyOrQueryString(body, query) {
  */
 function getBody(req, callback) {
   var body = '';
-  
+
   req.on('data', function(b){
     body = body + b.toString();
   });
 
-  req.on('end', function() {    
+  req.on('end', function() {
     callback(body);
   });
 }
 
 function getMockedContent(path, prefix, body, query) {
-    var mockName =  prefix + (getBodyOrQueryString(body, query) || '') + '.mock';
-    var mockFile = join(mockserver.directory, path, mockName);
-    
+    var mockedJSName =  prefix + (getBodyOrQueryString(body, query) || '') + '.js';
+    var mockJSFile = join(mockserver.directory, path, mockedJSName);
     try {
-        return fs.readFileSync(mockFile, {encoding: 'utf8'});
+        var foundFile = require(process.cwd() + '/' + mockJSFile);
+        foundFile.isJS = true;
+        return foundFile;
+    } catch(err) {
+        console.log(err)
+        return (body || query) && getMockedContent(path, prefix);
+    }
+
+    var mockedMockName =  prefix + (getBodyOrQueryString(body, query) || '') + '.mock';
+    var mockMockFile = join(mockserver.directory, path, mockedMockName);
+
+    try {
+        return fs.readFileSync(mockMockFile, {encoding: 'utf8'});
     } catch(err) {
         return (body || query) && getMockedContent(path, prefix);
     }
+
 }
 
 var mockserver = {
@@ -158,7 +201,7 @@ var mockserver = {
         }
 
         if(content) {
-            var mock = parse(content);
+            var mock = content.isJS ? parseJS(content) : parse(content)
             res.writeHead(mock.status, mock.headers);
 
             return res.end(mock.body);
