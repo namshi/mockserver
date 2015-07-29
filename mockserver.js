@@ -134,13 +134,13 @@ function getBody(req, callback) {
 function getMockedContent(path, prefix, body, query) {
     var mockedJSName =  prefix + (getBodyOrQueryString(body, query) || '') + '.js';
     var mockJSFile = join(mockserver.directory, path, mockedJSName);
+
     try {
         var foundFile = require(process.cwd() + '/' + mockJSFile);
         foundFile.isJS = true;
         return foundFile;
     } catch(err) {
         console.log(err)
-        return (body || query) && getMockedContent(path, prefix);
     }
 
     var mockedMockName =  prefix + (getBodyOrQueryString(body, query) || '') + '.mock';
