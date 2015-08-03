@@ -1,6 +1,6 @@
 var fs = require('fs');
 var join = require('path').join;
-var Combinatorics = require('js-combinatorics').Combinatorics;
+var Combinatorics = require('js-combinatorics');
 
 /**
  * Returns the status code out of the
