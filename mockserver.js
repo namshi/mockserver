@@ -140,7 +140,6 @@ function getMockedContent(path, prefix, body, query) {
         foundFile.isJS = true;
         return foundFile;
     } catch(err) {
-        console.log(err)
     }
 
     var mockedMockName =  prefix + (getBodyOrQueryString(body, query) || '') + '.mock';
