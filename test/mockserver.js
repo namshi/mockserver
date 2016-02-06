@@ -1,10 +1,13 @@
 var MockReq = require('mock-req');
 var assert = require("assert");
+var colors = require('colors');
 var mockserver = require("./../mockserver");
 
 var res;
 var req;
 var mocksDirectory = './test/mocks';
+
+var verbose = process.env.DEBUG === 'true' || false;
 
 describe('mockserver', function() {
     beforeEach(function() {
@@ -38,7 +41,7 @@ describe('mockserver', function() {
     function process(url, method) {
         req.url = url;
         req.method = method;
-        mockserver(mocksDirectory)(req, res);
+        mockserver(mocksDirectory, verbose)(req, res);
     }
 
     describe('mockserver()', function() {

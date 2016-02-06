@@ -61,6 +61,20 @@ And it's over: now you can start writing your frontends without
 having to wait for your APIs to be ready, or without having to spend
 too much time mocking them, as mockserver lets you do it in seconds.
 
+## Verbosity
+
+By default mockserver is running in verbose mode: log messages are pushed to `stdout`.
+That will help to distinguish, which mock file matches best the request.
+
+```shell
+$ mockserver -p 8080 -m './mocks'
+Mockserver serving mocks {verbose:true} under "./mocks" at http://localhost:8080
+Reading from ./mocks/api/GET--a=b.mock file: Not matched
+Reading from ./mocks/api/GET.mock file: Matched
+```
+
+Option `-q|--quiet` disables this behavior.
+
 ## Mock files
 
 As you probably understood, mock files' naming conventions are based
@@ -187,3 +201,15 @@ if there's no `hello/GET_Authorization=12345--a=b.mock`, we'll default to `hello
 Tests run on travis, but if you wanna run them locally you simply
 have to run `mocha` or its verbose cousin `./node_modules/mocha/bin/mocha`
 (if you don't have mocha installed globally).
+
+To run test with debug output, expose `DEBUG=true` environment variable:
+
+```shell
+$ DEBUG=true ./node_modules/mocha/bin/mocha
+```
+
+Or as npm shortcut:
+
+```shell
+$ DEBUG=true npm test
+```
