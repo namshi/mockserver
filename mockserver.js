@@ -103,18 +103,29 @@ function getBody(req, callback) {
 function getMockedContent(path, prefix, body, query) {
     var mockName =  prefix + (getBodyOrQueryString(body, query) || '') + '.mock';
     var mockFile = join(mockserver.directory, path, mockName);
-    
+    var content;
+
     try {
-        return fs.readFileSync(mockFile, {encoding: 'utf8'});
+        content = fs.readFileSync(mockFile, {encoding: 'utf8'});
+        if (mockserver.verbose) {
+            console.log('Reading from '+ mockFile.yellow +' file: ' + 'Matched'.green);
+        }
     } catch(err) {
-        return (body || query) && getMockedContent(path, prefix);
+        if (mockserver.verbose) {
+            console.log('Reading from '+ mockFile.yellow +' file: ' + 'Not matched'.red);
+        }
+        content = (body || query) && getMockedContent(path, prefix);
     }
+
+    return content;
 }
 
 var mockserver = {
     directory:       '.',
-    use:             function(directory) {
+    verbose:         false,
+    init:            function(directory, verbose) {
         this.directory = directory;
+        this.verbose   = !!verbose;
     },
     handle:          function(req, res) {
       getBody(req, function(body) {
@@ -170,8 +181,8 @@ var mockserver = {
     }
 };
 
-module.exports = function(directory){
-    mockserver.use(directory);
+module.exports = function(directory, silent) {
+    mockserver.init(directory, silent);
 
     return mockserver.handle;
 };
