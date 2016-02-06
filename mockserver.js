@@ -23,6 +23,18 @@ var parseHeader = function (header) {
 };
 
 /**
+ * Prepares headers to watch, no duplicates, non-blanks.
+ * Priority exports over ENV definition.
+ */
+var prepareWatchedHeaders = function () {
+    var headers = (module.exports.headers.toString() || process.env.MOCK_HEADERS || '').split(',');
+
+    return headers.filter(function(item, pos, self) {
+        return item && self.indexOf(item) == pos;
+    });
+}
+
+/**
  * Parser the content of a mockfile
  * returning an HTTP-ish object with
  * status code, headers and body.
@@ -124,9 +136,11 @@ function getMockedContent(path, prefix, body, query) {
 var mockserver = {
     directory:       '.',
     verbose:         false,
+    headers:         [],
     init:            function(directory, verbose) {
         this.directory = directory;
         this.verbose   = !!verbose;
+        this.headers   = prepareWatchedHeaders();
     },
     handle:          function(req, res) {
       getBody(req, function(body) {
@@ -142,12 +156,8 @@ var mockserver = {
             path = url.substring(0, queryIndex);
         }
 
-        var watchedHeaders = module.exports.headers;
-        if(watchedHeaders && !Array.isArray(watchedHeaders)) {
-            watchedHeaders = [watchedHeaders];
-        }
-        if(req.headers && watchedHeaders && watchedHeaders.length) {
-            watchedHeaders.forEach(function(header) {
+        if(req.headers && mockserver.headers.length) {
+            mockserver.headers.forEach(function(header) {
                 header = header.toLowerCase();
                 if(req.headers[header]) {
                     headers.push('_' + normalizeHeader(header) + '=' + req.headers[header]);
@@ -189,4 +199,4 @@ module.exports = function(directory, silent) {
     return mockserver.handle;
 };
 
-module.exports.headers = [];
+module.exports.headers = null;
