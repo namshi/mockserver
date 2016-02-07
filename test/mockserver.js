@@ -38,7 +38,7 @@ describe('mockserver', function() {
     function process(url, method) {
         req.url = url;
         req.method = method;
-        mockserver(mocksDirectory, false)(req, res);
+        mockserver(mocksDirectory)(req, res);
     }
 
     describe('mockserver()', function() {
