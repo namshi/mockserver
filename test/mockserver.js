@@ -118,71 +118,71 @@ describe('mockserver', function() {
         });
 
         it('should be able track custom headers', function() {
-            mockserver.headers = ['Authorization'];
+            mockserver.headers = ['authorization'];
 
             process('/request-headers', 'GET');
             assert.equal(res.status, 401);
             assert.equal(res.body, 'not authorized');
 
-            req.headers['Authorization'] = '1234';
+            req.headers['authorization'] = '1234';
             process('/request-headers', 'GET');
             assert.equal(res.status, 200);
             assert.equal(res.body, 'authorized');
 
-            req.headers['Authorization'] = '5678';
+            req.headers['authorization'] = '5678';
             process('/request-headers', 'GET');
             assert.equal(res.status, 200);
             assert.equal(res.body, 'admin authorized');
         });
 
         it('should attempt to fall back to a base method if a custom header is not found in a file', function() {
-            mockserver.headers = ['Authorization'];
+            mockserver.headers = ['authorization'];
 
-            req.headers['Authorization'] = 'invalid';
+            req.headers['authorization'] = 'invalid';
             process('/request-headers', 'GET');
             assert.equal(res.status, 401);
             assert.equal(res.body, 'not authorized');
 
-            req.headers['Authorization'] = 'invalid';
+            req.headers['authorization'] = 'invalid';
             process('/request-headers', 'POST');
             assert.equal(res.status, 404);
             assert.equal(res.body, 'Not Mocked');
         });
 
         it('should look for alternate combinations of headers if a custom header is not found', function() {
-            mockserver.headers = ['Authorization', 'X-Foo'];
+            mockserver.headers = ['authorization', 'x-foo'];
 
-            req.headers['Authorization'] = 12;
-            req.headers['X-Foo'] = 'Bar';
+            req.headers['authorization'] = 12;
+            req.headers['x-foo'] = 'Bar';
             process('/request-headers', 'PUT');
             assert.equal(res.status, 200);
             assert.equal(res.body, 'header both');
 
-            req.headers['X-Foo'] = 'Baz';
+            req.headers['x-foo'] = 'Baz';
             process('/request-headers', 'PUT');
             assert.equal(res.status, 200);
             assert.equal(res.body, 'header auth only');
 
-            req.headers['Authorization'] = 78;
+            req.headers['authorization'] = 78;
             process('/request-headers', 'PUT');
             assert.equal(res.status, 200);
             assert.equal(res.body, 'header both out-of-order');
 
-            req.headers['Authorization'] = 45;
+            req.headers['authorization'] = 45;
             process('/request-headers', 'PUT');
             assert.equal(res.status, 200);
             assert.equal(res.body, 'header x-foo only');
 
-            delete req.headers['Authorization'];
+            delete req.headers['authorization'];
             process('/request-headers', 'PUT');
             assert.equal(res.status, 200);
             assert.equal(res.body, 'header x-foo only');
         });
 
         it('should be able track custom headers with variation and query params', function() {
-            mockserver.headers = ['Authorization', 'X-Foo'];
-            req.headers['Authorization'] = 12;
-            req.headers['X-Foo'] = 'Bar';
+            mockserver.headers = ['authorization', 'x-foo'];
+            req.headers['authorization'] = 12;
+            req.headers['x-foo'] = 'Bar';
             process('/request-headers?a=b', 'POST');
             assert.equal(res.status, 200);
             assert.equal(res.body, 'that is a long filename');
@@ -263,8 +263,8 @@ describe('mockserver', function() {
         });
 
         it('Should return 404 when no default .mock files are found', function() {
-            mockserver.headers = ['Authorization'];
-            req.headers['Authorization'] = 12;
+            mockserver.headers = ['authorization'];
+            req.headers['authorization'] = 12;
             process('/return-200?a=c', 'GET');
 
             assert.equal(res.status, 404);

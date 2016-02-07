@@ -1,6 +1,7 @@
 var fs = require('fs');
 var join = require('path').join;
 var Combinatorics = require('js-combinatorics');
+var normalizeHeader = require('header-case-normalizer');
 
 /**
  * Returns the status code out of the
@@ -18,7 +19,7 @@ var parseStatus = function (header) {
 var parseHeader = function (header) {
     header = header.split(': ');
 
-    return {key: header[0], value: header[1]};
+    return {key: normalizeHeader(header[0]), value: header[1]};
 };
 
 /**
@@ -136,8 +137,9 @@ var mockserver = {
         }
         if(req.headers && watchedHeaders && watchedHeaders.length) {
             watchedHeaders.forEach(function(header) {
+                header = header.toLowerCase();
                 if(req.headers[header]) {
-                    headers.push('_' + header + '=' + req.headers[header]);
+                    headers.push('_' + normalizeHeader(header) + '=' + req.headers[header]);
                 }
             });
         }
