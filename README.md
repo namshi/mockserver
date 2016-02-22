@@ -106,8 +106,16 @@ Check [our own mocks](https://github.com/namshi/mockserver/tree/master/test/mock
 ## Custom Headers
 
 You can specify request headers to include, which allows you to change the response based on what headers are
-provided.  To do this, you need to let mockserver know which headers matter, by setting the
-`headers` array on the mockserver object, like so:
+provided.
+
+To do this, you need to let mockserver know which headers matter,
+by exposing comma-separated environment `MOCK_HEADERS` variable, like so:
+
+```shell
+$ MOCK_HEADERS=x-foo,authorization mockserver -m . -p 9001
+```
+
+Or by setting the `headers` array on the mockserver object, like so:
 
 ```js
 var mockserver = require('mockserver');
