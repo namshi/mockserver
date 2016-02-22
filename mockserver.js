@@ -27,7 +27,8 @@ var parseHeader = function (header) {
  * Priority exports over ENV definition.
  */
 var prepareWatchedHeaders = function () {
-    var headers = (module.exports.headers.toString() || process.env.MOCK_HEADERS || '').split(',');
+    var exportHeaders = module.exports.headers && module.exports.headers.toString();
+    var headers = (exportHeaders || process.env.MOCK_HEADERS || '').split(',');
 
     return headers.filter(function(item, pos, self) {
         return item && self.indexOf(item) == pos;
