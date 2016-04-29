@@ -1,5 +1,5 @@
 var MockReq = require('mock-req');
-var assert = require("assert");
+var assert = require("chai").assert;
 var colors = require('colors');
 var mockserver = require("./../mockserver");
 
@@ -323,5 +323,34 @@ describe('mockserver', function() {
 
             assert.equal(res.status, 404);
         });
+
+        it("Should handle relative timestamp hook", function(done){
+            var now = new Date();
+            var nineDaysAgo = (new Date()).setDate(now.getDate() - 9);
+            var elevenDaysAgo = (new Date()).setDate(now.getDate() - 11);
+            var req = new MockReq({
+                    method: 'POST',
+                    url: '/return-200',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+            req.write('{"timestamp": "relative"}');
+            req.end();
+
+            mockserver(mocksDirectory, verbose)(req, res);
+
+            req.on('end', function() {
+                var jsonBody = JSON.parse(res.body);
+
+                assert.isAbove(jsonBody.timestamp, elevenDaysAgo);
+                assert.isBelow(jsonBody.timestamp, nineDaysAgo);
+                done();
+            });
+        });
+    });
+
+    describe("dynamic hooks", function(){
+
     });
 });
