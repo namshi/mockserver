@@ -204,6 +204,20 @@ Authorization: 12345
 if there's no `hello/GET_Authorization=12345--a=b.mock`, we'll default to `hello/GET_Authorization=12345.mock` or to `hello/GET.mock`
 
 
+## Relative Timestamp
+
+Instead of using a hardcoded timestamp, you can use relative one, providing number of days to roll back:
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+   "RelativeTimestamp": <%= timestampXDaysAgo(10) %>
+}
+```
+
+
 ## Tests
 
 Tests run on travis, but if you wanna run them locally you simply
