@@ -206,7 +206,7 @@ if there's no `hello/GET_Authorization=12345--a=b.mock`, we'll default to `hello
 
 ## Relative Timestamp
 
-Instead of hardcoded timestamp, you can use a relative one, providing number of days to roll back:
+Instead of using a hardcoded timestamp, you can use relative one, providing number of days to roll back:
 
 ```
 HTTP/1.1 200 OK
