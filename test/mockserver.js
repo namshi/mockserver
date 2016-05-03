@@ -349,8 +349,4 @@ describe('mockserver', function() {
             });
         });
     });
-
-    describe("dynamic hooks", function(){
-
-    });
 });
