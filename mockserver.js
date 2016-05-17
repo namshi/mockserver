@@ -2,6 +2,7 @@ var fs = require('fs');
 var join = require('path').join;
 var Combinatorics = require('js-combinatorics');
 var normalizeHeader = require('header-case-normalizer');
+var moment = require('moment');
 
 /**
  * Returns the status code out of the
@@ -60,11 +61,73 @@ var parse = function (content) {
         }
     });
 
-    body = bodyContent.join('\n');
+    body = applyHooks(bodyContent).join('\n');
 
     return {status: status, headers: headers, body: body};
 };
+/**
+ * A collection of dynamic hooks that can be called from the mock
+ * 
+ * eg. {"timestamp": {% time('-10d') %} }
+ * 
+ * will be served as {"timestamp": 1460555016071 }
+ * 
+ */
+var dynamicHooks = {
+    /**
+     *
+     * @param diff - Time difference to apply to current timestamp.
+     * May start with `-`, followed by amount you want to add/subtract,
+     * ended with unit name. Eg. `'-10 days'.
+     * See [momentjs documentation](http://momentjs.com/docs/#/manipulating/add/) for supported units.
+     * 
+     * @returns Modified timestamp
+     */
+    time: function(diff){
+        var now     = moment();
+        var matches = diff.match(/-|[a-zA-Z]+|[-0-9]+/g);
+        var method  = 'add';
 
+        if(matches[0] === '-') {
+            matches.shift();
+            method = 'subtract';
+        }
+
+        return now[method].apply(now, matches).valueOf();
+    }
+};
+
+/**
+ * Look for hooks in the body
+ */
+function applyHooks(bodyContentArray) {
+    return bodyContentArray.map(function(line) {
+        if(line.indexOf('{%') >= 0) {
+            return applyHook(line);
+
+        } else {
+            return line;
+        }
+    });
+}
+/**
+ * Parse hook's name and arguments
+ */
+function applyHook(line) {
+    try {
+        var hookCall = line.match(/{%(.*)%}/)[1].trim();
+        var hookName = hookCall.match(/\w+/)[0];
+        var hookArgs = hookCall.match(/\((.*)\)/).splice(1);
+        var replacement = dynamicHooks[hookName].apply(null, hookArgs);
+
+        return line.replace(/{%(.*)%}/, replacement);
+
+    } catch(e) {
+        console.log('*** applyHooks err', e)
+        return line;
+    }
+
+}
 /**
  * Returns the body or query string to be used in
  * the mock name.
