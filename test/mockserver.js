@@ -324,7 +324,7 @@ describe('mockserver', function() {
             assert.equal(res.status, 404);
         });
 
-        it("Should handle relative timestamp hook", function(done){
+        it("Should handle relative time hook", function(done){
             var now = new Date();
             var nineDaysAgo = (new Date()).setDate(now.getDate() - 9);
             var elevenDaysAgo = (new Date()).setDate(now.getDate() - 11);

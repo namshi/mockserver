@@ -2,5 +2,5 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-  "timestamp": <%= timestampXDaysAgo(10) %>
+  "timestamp": {% time('-10d') %}
 }

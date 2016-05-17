@@ -2,6 +2,7 @@ var fs = require('fs');
 var join = require('path').join;
 var Combinatorics = require('js-combinatorics');
 var normalizeHeader = require('header-case-normalizer');
+var moment = require('moment');
 
 /**
  * Returns the status code out of the
@@ -67,18 +68,32 @@ var parse = function (content) {
 /**
  * A collection of dynamic hooks that can be called from the mock
  * 
- * eg. {"timestamp": <%= timestampXDaysAgo(10) %> }
+ * eg. {"timestamp": {% time('-10d') %} }
  * 
  * will be served as {"timestamp": 1460555016071 }
  * 
  */
 var dynamicHooks = {
-    timestampXDaysAgo: function(days){
-        var now = new Date();
+    /**
+     *
+     * @param diff - Time difference to apply to current timestamp.
+     * May start with `-`, followed by amount you want to add/subtract,
+     * ended with unit name. Eg. `'-10 days'.
+     * See [momentjs documentation](http://momentjs.com/docs/#/manipulating/add/) for supported units.
+     * 
+     * @returns Modified timestamp
+     */
+    time: function(diff){
+        var now     = moment();
+        var matches = diff.match(/-|[a-zA-Z]+|[-0-9]+/g);
+        var method  = 'add';
 
-        now.setDate(now.getDate() - parseInt(days));
+        if(matches[0] === '-') {
+            matches.shift();
+            method = 'subtract';
+        }
 
-        return now.valueOf();
+        return now[method].apply(now, matches).valueOf();
     }
 };
 
@@ -87,7 +102,7 @@ var dynamicHooks = {
  */
 function applyHooks(bodyContentArray) {
     return bodyContentArray.map(function(line) {
-        if(line.indexOf('<%= ') >= 0) {
+        if(line.indexOf('{%') >= 0) {
             return applyHook(line);
 
         } else {
@@ -100,14 +115,15 @@ function applyHooks(bodyContentArray) {
  */
 function applyHook(line) {
     try {
-        var hookCall = line.match(/<%=(.*)%>/)[1].trim();
+        var hookCall = line.match(/{%(.*)%}/)[1].trim();
         var hookName = hookCall.match(/\w+/)[0];
         var hookArgs = hookCall.match(/\((.*)\)/).splice(1);
         var replacement = dynamicHooks[hookName].apply(null, hookArgs);
 
-        return line.replace(/<%=(.*)%>/, replacement);
+        return line.replace(/{%(.*)%}/, replacement);
 
     } catch(e) {
+        console.log('*** applyHooks err', e)
         return line;
     }
 
