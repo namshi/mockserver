@@ -280,7 +280,7 @@ describe('mockserver', function() {
                 method: 'POST',
                 url: '/return-200',
                 headers: {
-                    'Accept': 'tapplication/json'
+                    'Accept': 'application/json'
                 }
             });
             req.write('{"json": "yesPlease"}');
