@@ -192,6 +192,7 @@ look for a file called `POST--Hello=World.mock`
 
 In the same way, if your POST body is a json like `{"json": "yesPlease"}`,
 mockserver will look for a file called `POST--{"json": "yesPlease"}.mock`
+*Warning! This feature is NOT compatible with Windows. This is because Windows doesn't accept curly braces as filenames.*
 
 If no parametrized mock file is found, mockserver will default to the
 nearest headers based .mock file
