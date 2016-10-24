@@ -275,28 +275,6 @@ describe('mockserver', function() {
             });
         });
 
-        it('should be able to include POST json in the mock location', function(done) {
-            var req = new MockReq({
-                method: 'POST',
-                url: '/return-200',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-            req.write('{"json": "yesPlease"}');
-            req.end();
-
-            mockserver(mocksDirectory, verbose)(req, res);
-
-            req.on('end', function() {
-              var jsonBody = JSON.parse(res.body);
-              
-              assert.equal(jsonBody.json, 'yes, we haZ it');
-              assert.equal(res.status, 200);
-              done();
-            });
-        });
-
         it('Should default to POST.mock if no match for body is found', function(done) {
             var req = new MockReq({
                 method: 'POST',
