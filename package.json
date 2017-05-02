@@ -4,7 +4,8 @@
   "description": "Easily mock your webservices while testing frontends.",
   "main": "mockserver.js",
   "scripts": {
-    "test": "mocha -b"
+    "test": "mocha -b",
+    "lint": "prettier --single-quote --trailing-comma none --semi --use-tabs --tab-width 4 '{*.js,test/**/*.js,bin/**/*.js}' --write"
   },
   "bin": {
     "mockserver": "bin/mockserver.js"
@@ -28,13 +29,14 @@
   },
   "homepage": "https://github.com/namshi/mockserver",
   "dependencies": {
-    "colors": "^1.0.3",
-    "js-combinatorics": "^0.5.0",
-    "yargs": "^1.3.3",
-    "header-case-normalizer": "^1.0.3"
+    "colors": "^1.1.2",
+    "header-case-normalizer": "^1.0.3",
+    "js-combinatorics": "^0.5.2",
+    "yargs": "^7.1.0"
   },
   "devDependencies": {
-    "mocha": "^2.0.1",
-    "mock-req": "^0.2.0"
+    "mocha": "^3.3.0",
+    "mock-req": "^0.2.0",
+    "prettier": "^1.2.2"
   }
 }
