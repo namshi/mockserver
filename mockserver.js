@@ -1,5 +1,6 @@
 var fs = require('fs');
-var join = require('path').join;
+var path = require('path');
+var join = path.join;
 var Combinatorics = require('js-combinatorics');
 var normalizeHeader = require('header-case-normalizer');
 
@@ -41,29 +42,44 @@ var prepareWatchedHeaders = function() {
  * returning an HTTP-ish object with
  * status code, headers and body.
  */
-var parse = function(content) {
-	var headers = {};
-	var body;
-	var bodyContent = [];
-	content = content.split('\n');
-	var status = parseStatus(content[0]);
-	var headerEnd = false;
-	delete content[0];
+var parse = function (content, file) {
+    var headers         = {};
+    var body;
+    var bodyContent     = [];
+    content             = content.split('\n');
+    var status          = parseStatus(content[0]);
+    var headerEnd       = false;
+    delete content[0];
 
-	content.forEach(function(line) {
-		if (headerEnd) {
-			bodyContent.push(line);
-		} else if (line === '' || line === '\r') {
-			headerEnd = true;
-		} else {
-			var header = parseHeader(line);
-			headers[header.key] = header.value;
-		}
-	});
+    content.forEach(function (line) {
+        switch (true) {
+            case headerEnd:
+                bodyContent.push(line);
+                break;
+            case (line === '' || line === '\r'):
+                headerEnd = true;
+                break;
+            default:
+                var header = parseHeader(line);
+                headers[header.key] = header.value;
+                break;
+        }
+    });
 
-	body = bodyContent.join('\n');
+    body = bodyContent.join('\n');
 
-	return { status: status, headers: headers, body: body };
+    // Has a import statement
+    if (/^#import/m.test(body)) {
+        var context = path.parse(file).dir + '/';
+
+        body = body.replace(/^#import (.*);/m, function (includeStatement, file, data) {
+            var importThisFile = file.replace(/['"]/g, '');
+
+            return fs.readFileSync(path.join(__dirname, context, importThisFile));
+        });
+    }
+
+    return {status: status, headers: headers, body: body};
 };
 
 /**
@@ -143,74 +159,63 @@ function getMockedContent(path, prefix, body, query) {
 }
 
 var mockserver = {
-	directory: '.',
-	verbose: false,
-	headers: [],
-	init: function(directory, verbose) {
-		this.directory = directory;
-		this.verbose = !!verbose;
-		this.headers = prepareWatchedHeaders();
-	},
-	handle: function(req, res) {
-		getBody(req, function(body) {
-			var url = req.url;
-			var path = url;
+    directory:       '.',
+    verbose:         false,
+    headers:         [],
+    init:            function(directory, verbose) {
+        this.directory = directory;
+        this.verbose   = !!verbose;
+        this.headers   = prepareWatchedHeaders();
+    },
+    handle:          function(req, res) {
+      getBody(req, function(body) {
+        var url = req.url;
+        var path = url;
 
-			var queryIndex = url.indexOf('?'),
-				query = queryIndex >= 0
-					? url.substring(queryIndex).replace(/\?/g, '')
-					: '',
-				method = req.method.toUpperCase(),
-				headers = [];
+        var queryIndex = url.indexOf('?'),
+            query = queryIndex >= 0 ? url.substring(queryIndex).replace(/\?/g, '') : '',
+            method = req.method.toUpperCase(),
+            headers = [];
 
-			if (queryIndex > 0) {
-				path = url.substring(0, queryIndex);
-			}
+        if (queryIndex > 0) {
+            path = url.substring(0, queryIndex);
+        }
 
-			if (req.headers && mockserver.headers.length) {
-				mockserver.headers.forEach(function(header) {
-					header = header.toLowerCase();
-					if (req.headers[header]) {
-						headers.push(
-							'_' +
-								normalizeHeader(header) +
-								'=' +
-								req.headers[header]
-						);
-					}
-				});
-			}
+        if(req.headers && mockserver.headers.length) {
+            mockserver.headers.forEach(function(header) {
+                header = header.toLowerCase();
+                if(req.headers[header]) {
+                    headers.push('_' + normalizeHeader(header) + '=' + req.headers[header]);
+                }
+            });
+        }
 
-			// Now, permute the possible headers, and look for any matching files, prioritizing on
-			// both # of headers and the original header order
-			var content, permutations = [[]];
+        // Now, permute the possible headers, and look for any matching files, prioritizing on
+        // both # of headers and the original header order
+        var content,
+            permutations = [[]];
 
-			if (headers.length) {
-				permutations = Combinatorics.permutationCombination(headers)
-					.toArray()
-					.sort(function(a, b) {
-						return b.length - a.length;
-					});
-				permutations.push([]);
-			}
+        if(headers.length) {
+            permutations = Combinatorics.permutationCombination(headers).toArray().sort(function(a, b) { return b.length - a.length; });
+            permutations.push([]);
+        }
 
-			while (permutations.length) {
-				var prefix = method + permutations.pop().join('');
-				content =
-					getMockedContent(path, prefix, body, query) || content;
-			}
+        while(permutations.length) {
+            var prefix = method + permutations.pop().join('');
+            content = getMockedContent(path, prefix, body, query) || content;
+        }
 
-			if (content) {
-				var mock = parse(content);
-				res.writeHead(mock.status, mock.headers);
+        if(content) {
+            var mock = parse(content, join(mockserver.directory, path, prefix));
+            res.writeHead(mock.status, mock.headers);
 
-				return res.end(mock.body);
-			} else {
-				res.writeHead(404);
-				res.end('Not Mocked');
-			}
-		});
-	}
+            return res.end(mock.body);
+        } else {
+            res.writeHead(404);
+            res.end('Not Mocked');
+        }
+      });
+    }
 };
 
 module.exports = function(directory, silent) {
