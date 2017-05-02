@@ -302,11 +302,18 @@ describe('mockserver', function() {
             assert.equal(res.status, 404);
         });
 
-        it('should be able to handle impoprts', function() {
+        it('should be able to handle imports', function() {
             processRequest('/import', 'GET');
 
             assert.equal(res.status, 200);
             assert.equal(res.body, JSON.stringify({foo: 'bar'}, null, 4));
+        });
+
+        it('should be able to handle imports with content around import', function() {
+            processRequest('/import?around=true', 'GET');
+
+            assert.equal(res.status, 200);
+            assert.equal(res.body, 'stuff\n'+JSON.stringify({foo: 'bar'}, null, 4)+'\naround me');
         });
     });
 });
