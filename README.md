@@ -205,6 +205,18 @@ Authorization: 12345
 if there's no `hello/GET_Authorization=12345--a=b.mock`, we'll default to `hello/GET_Authorization=12345.mock` or to `hello/GET.mock`
 
 
+## Custom imports
+Say you have some json you want to use in your unit tests, and also serve as the body of the call. You can use this import syntax:
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+#import './data.json';
+```
+
+whereby `./data.json` is a file relative to the including mock file. You can have as many imports as you want per mock file.
+
 ## Tests
 
 Tests run on travis, but if you wanna run them locally you simply
