@@ -301,5 +301,12 @@ describe('mockserver', function() {
 
             assert.equal(res.status, 404);
         });
+
+        it('should be able to handle impoprts', function() {
+            processRequest('/import', 'GET');
+
+            assert.equal(res.status, 200);
+            assert.equal(res.body, JSON.stringify({foo: 'bar'}, null, 4));
+        });
     });
 });

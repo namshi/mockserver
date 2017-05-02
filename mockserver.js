@@ -1,5 +1,6 @@
 var fs = require('fs');
-var join = require('path').join;
+var path = require('path');
+var join = path.join;
 var Combinatorics = require('js-combinatorics');
 var normalizeHeader = require('header-case-normalizer');
 
@@ -40,7 +41,7 @@ var prepareWatchedHeaders = function () {
  * returning an HTTP-ish object with
  * status code, headers and body.
  */
-var parse = function (content) {
+var parse = function (content, file) {
     var headers         = {};
     var body;
     var bodyContent     = [];
@@ -49,18 +50,33 @@ var parse = function (content) {
     var headerEnd       = false;
     delete content[0];
 
-    content.forEach(function(line) {
-        if (headerEnd) {
-            bodyContent.push(line);
-        } else if (line === '' || line === '\r') {
-            headerEnd = true;
-        } else {
-            var header = parseHeader(line);
-            headers[header.key] = header.value;
+    content.forEach(function (line) {
+        switch (true) {
+            case headerEnd:
+                bodyContent.push(line);
+                break;
+            case (line === '' || line === '\r'):
+                headerEnd = true;
+                break;
+            default:
+                var header = parseHeader(line);
+                headers[header.key] = header.value;
+                break;
         }
     });
 
     body = bodyContent.join('\n');
+
+    // Has a import statement
+    if (/^#import/m.test(body)) {
+        var context = path.parse(file).dir + '/';
+
+        body = body.replace(/^#import (.*);/m, function (includeStatement, file, data) {
+            var importThisFile = file.replace(/['"]/g, '');
+
+            return fs.readFileSync(path.join(__dirname, context, importThisFile));
+        });
+    }
 
     return {status: status, headers: headers, body: body};
 };
@@ -182,7 +198,7 @@ var mockserver = {
         }
 
         if(content) {
-            var mock = parse(content);
+            var mock = parse(content, join(mockserver.directory, path, prefix));
             res.writeHead(mock.status, mock.headers);
 
             return res.end(mock.body);
