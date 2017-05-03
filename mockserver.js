@@ -67,14 +67,13 @@ var parse = function (content, file) {
 
     body = bodyContent.join('\n');
 
-    // Has a import statement
     if (/^#import/m.test(body)) {
         var context = path.parse(file).dir + '/';
 
         body = body.replace(/^#import (.*);/m, function (includeStatement, file, data) {
             var importThisFile = file.replace(/['"]/g, '');
 
-            return fs.readFileSync(path.join(__dirname, context, importThisFile));
+            return fs.readFileSync(path.join('./', context, importThisFile));
         });
     }
 
