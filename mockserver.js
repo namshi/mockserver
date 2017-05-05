@@ -45,7 +45,7 @@ var parse = function (content, file) {
     var headers         = {};
     var body;
     var bodyContent     = [];
-    content             = content.split('\n');
+    content             = content.split(/\r?\n/);
     var status          = parseStatus(content[0]);
     var headerEnd       = false;
     delete content[0];
