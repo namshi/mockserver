@@ -315,5 +315,34 @@ describe('mockserver', function() {
             assert.equal(res.status, 200);
             assert.equal(res.body, 'stuff\n'+JSON.stringify({foo: 'bar'}, null, 4)+'\naround me');
         });
+
+        describe('wildcard directories', function() {
+          it('wildcard matches directories named __ with numeric slug', function() {
+              processRequest('/wildcard/123', 'GET');
+
+              assert.equal(res.status, 200);
+              assert.equal(res.body, 'this always comes up\n');
+          });
+
+          it('wildcard matches directories named __ with string slug', function() {
+              processRequest('/wildcard/abc', 'GET');
+
+              assert.equal(res.status, 200);
+              assert.equal(res.body, 'this always comes up\n');
+          });
+
+          it('__ not used if more specific match exist', function() {
+              processRequest('/wildcard/exact', 'GET');
+
+              assert.equal(res.status, 200);
+              assert.equal(res.body, 'more specific\n');
+          });
+
+          it('should not resolve with missing slug', function() {
+              processRequest('/wildcard/', 'GET');
+
+              assert.equal(res.status, 404);
+          });
+        });
     });
 });
