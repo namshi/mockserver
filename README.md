@@ -204,6 +204,30 @@ Authorization: 12345
 ```
 if there's no `hello/GET_Authorization=12345--a=b.mock`, we'll default to `hello/GET_Authorization=12345.mock` or to `hello/GET.mock`
 
+## Wildcard slugs
+
+If you want to match against a route with a wildcard - say in the case of an ID or other parameter in the URL, you can
+create a directory named `__` as a wildcard.
+
+For example, let's say that you want mock the response of a GET request
+to `/users/:id`, you can create files named `users/1/GET.mock`, `users/2/GET.mock`, `users/3/GET.mock`, etc.
+
+Then to create one catchall, you can create another file `users/__/GET.mock`. This file will act as a fallback
+for any other requests:
+
+ex:
+```
+GET /users/2
+
+GET /users/2/GET.mock
+```
+
+ex:
+```
+GET /users/1000
+
+GET /users/__/GET.mock
+```
 
 ## Custom imports
 Say you have some json you want to use in your unit tests, and also serve as the body of the call. You can use this import syntax:

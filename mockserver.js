@@ -82,6 +82,26 @@ var parse = function (content, file) {
     return {status: status, headers: headers, body: body};
 };
 
+function removeBlanks(array) {
+  return array.filter(function (i) { return i; });
+}
+
+function getWildcardPath(path) {
+  var steps = removeBlanks(path.split('/')),
+      testPath,
+      newPath,
+      exists = false;
+
+    while(steps.length && !newPath) {
+        steps.pop();
+        testPath = join(steps.join('/'), '/__');
+        exists = fs.existsSync(join(mockserver.directory, testPath));
+        if(exists) { newPath = testPath; }
+    }
+
+    return newPath;
+}
+
 /**
  * Returns the body or query string to be used in
  * the mock name.
@@ -151,6 +171,17 @@ function getMockedContent(path, prefix, body, query) {
     return content;
 }
 
+function getContentFromPermutations(path, method, body, query, permutations) {
+    var content, prefix;
+
+    while(permutations.length) {
+        prefix = method + permutations.pop().join('');
+        content = getMockedContent(path, prefix, body, query) || content;
+    }
+
+    return { content: content, prefix: prefix };
+}
+
 var mockserver = {
     directory:       '.',
     verbose:         false,
@@ -185,7 +216,7 @@ var mockserver = {
 
         // Now, permute the possible headers, and look for any matching files, prioritizing on
         // both # of headers and the original header order
-        var content,
+        var matched,
             permutations = [[]];
 
         if(headers.length) {
@@ -193,13 +224,14 @@ var mockserver = {
             permutations.push([]);
         }
 
-        while(permutations.length) {
-            var prefix = method + permutations.pop().join('');
-            content = getMockedContent(path, prefix, body, query) || content;
+        matched = getContentFromPermutations(path, method, body, query, permutations.slice(0));
+
+        if(!matched.content && (path = getWildcardPath(path))) {
+            matched = getContentFromPermutations(path, method, body, query, permutations.slice(0));
         }
 
-        if(content) {
-            var mock = parse(content, join(mockserver.directory, path, prefix));
+        if(matched.content) {
+            var mock = parse(matched.content, join(mockserver.directory, path, matched.prefix));
             res.writeHead(mock.status, mock.headers);
 
             return res.end(mock.body);
