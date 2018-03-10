@@ -3,6 +3,7 @@ var path = require('path');
 var join = path.join;
 var Combinatorics = require('js-combinatorics');
 var normalizeHeader = require('header-case-normalizer');
+var colors = require('colors')
 
 /**
  * Returns the status code out of the
