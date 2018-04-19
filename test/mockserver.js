@@ -7,7 +7,7 @@ var res;
 var req;
 var mocksDirectory = './test/mocks';
 
-var verbose = process.env.DEBUG === 'true' || false;
+var verbose = process.env.DEBUG === 'true' || true;
 
 /**
  * Processes request
@@ -294,6 +294,48 @@ describe('mockserver', function() {
             });
         });
 
+        it('should be able to include POST json body in separate file', function(done) {
+          var jsonBody = {user: {username: 'theUser', password: '123456'}};
+          var req = new MockReq({
+            method: 'POST',
+            url: '/request-json',
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+          req.write(jsonBody);
+          req.end();
+
+          mockserver(mocksDirectory, verbose)(req, res);
+
+          req.on('end', function() {
+            assert.deepEqual(JSON.parse(res.body), {token: 'longJWT'});
+            assert.equal(res.status, 200);
+            done();
+          });
+        });
+
+        it('should default to POST.mock if json body not found in any files', function(done) {
+          var jsonBody = {user: {username: 'notFoundUser', password: '123456'}};
+          var req = new MockReq({
+            method: 'POST',
+            url: '/request-json',
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+          req.write(jsonBody);
+          req.end();
+
+          mockserver(mocksDirectory, verbose)(req, res);
+
+          req.on('end', function() {
+            assert.deepEqual(JSON.parse(res.body), {error: 'User not found'});
+            assert.equal(res.status, 404);
+            done();
+          });
+        });
+
         it('Should return 404 when no default .mock files are found', function() {
             mockserver.headers = ['authorization'];
             req.headers['authorization'] = 12;
@@ -343,6 +385,7 @@ describe('mockserver', function() {
 
               assert.equal(res.status, 404);
           });
+
         });
     });
 });
