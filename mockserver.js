@@ -190,7 +190,7 @@ function getMockedContent(path, prefix, body, query) {
     var files = fs.readdirSync(fullPath);
 
     // 1st try to match on body or query within file name
-    if (files.includes(mockName)) {
+    if (files.indexOf(mockName) !== -1) {
       if (mockserver.verbose) {
         console.log('Reading from '+ mockName.yellow +' file: ' + 'Matched'.green);
       }
@@ -210,7 +210,7 @@ function getMockedContent(path, prefix, body, query) {
     }
 
     // 3rd try fallback with only prefix
-    if (files.includes(prefixFallback)) {
+    if (files.indexOf(prefixFallback) !== -1) {
       if (mockserver.verbose) {
         console.log('Reading from '+ mockName.yellow +' file: ' + 'Not matched'.red);
       }
