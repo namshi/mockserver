@@ -74,7 +74,7 @@ var parse = function (content, file) {
         body = body.replace(/^#import (.*);/m, function (includeStatement, file, data) {
             var importThisFile = file.replace(/['"]/g, '');
 
-            return fs.readFileSync(path.join('./', context, importThisFile));
+            return fs.readFileSync(path.join(context, importThisFile));
         })
         .replace(/\r\n?/g, '\n');
     }
