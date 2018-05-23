@@ -1,6 +1,8 @@
 var fs = require('fs');
 var path = require('path');
 var join = path.join;
+var lstatSync = fs.lstatSync
+var readdirSync = fs.readdirSync
 var Combinatorics = require('js-combinatorics');
 var normalizeHeader = require('header-case-normalizer');
 var colors = require('colors')
@@ -92,14 +94,60 @@ function getWildcardPath(path) {
       newPath,
       exists = false;
 
-    while(steps.length && !newPath) {
+    while(steps.length) {
         steps.pop();
         testPath = join(steps.join('/'), '/__');
         exists = fs.existsSync(join(mockserver.directory, testPath));
         if(exists) { newPath = testPath; }
     }
 
+    var res = getDirectoriesRecursive(mockserver.directory).filter(path => {
+            var directories = path.split('\\')
+            return directories.includes('__')
+        }).sort((a, b) => {
+            var aLength = a.split('\\')
+            var bLength = b.split('\\')
+
+            if (aLength == bLength)
+                return 0
+
+            // Order from longest file path to shortest.
+            return aLength > bLength ? -1 : 1
+        }).map(path => {
+            var steps = path.split('\\')
+            var baseDir = mockserver.directory.split('\\')
+            steps.splice(0, baseDir.length)
+            return steps.join('\\')
+        })
+    
+    steps = removeBlanks(path.split('/'))
+    var length = steps.length
+    for (let index = 0; index < length; index++) {
+        var dupeSteps = removeBlanks(path.split('/'))
+        dupeSteps[index] = '__'
+        var testPath = dupeSteps.join('\\')
+        var matchFound = res.includes(testPath);
+        if (matchFound) {
+            newPath = testPath
+            break
+        }
+    }
+
     return newPath;
+}
+
+function flatten(lists) {
+    return lists.reduce((a, b) => a.concat(b), []);
+}
+
+function getDirectories(srcpath) {
+    return fs.readdirSync(srcpath)
+        .map(file => path.join(srcpath, file))
+        .filter(path => fs.statSync(path).isDirectory());
+}
+
+function getDirectoriesRecursive(srcpath) {
+    return [srcpath, ...flatten(getDirectories(srcpath).map(getDirectoriesRecursive))];
 }
 
 /**
