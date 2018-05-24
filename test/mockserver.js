@@ -2,10 +2,11 @@ var MockReq = require('mock-req');
 var assert = require("assert");
 var colors = require('colors');
 var mockserver = require("./../mockserver");
+var path = require('path')
 
 var res;
 var req;
-var mocksDirectory = './test/mocks';
+var mocksDirectory = path.join('.', 'test', 'mocks');
 
 var verbose = process.env.DEBUG === 'true' || false;
 

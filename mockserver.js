@@ -88,8 +88,8 @@ function removeBlanks(array) {
   return array.filter(function (i) { return i; });
 }
 
-function getWildcardPath(path) {
-  var steps = removeBlanks(path.split('/')),
+function getWildcardPath(dir) {
+  var steps = removeBlanks(dir.split('/')),
       testPath,
       newPath,
       exists = false;
@@ -101,31 +101,31 @@ function getWildcardPath(path) {
         if(exists) { newPath = testPath; }
     }
 
-    var res = getDirectoriesRecursive(mockserver.directory).filter(path => {
-            var directories = path.split('\\')
+    var res = getDirectoriesRecursive(mockserver.directory).filter(dir => {
+            var directories = dir.split(path.sep)
             return directories.includes('__')
         }).sort((a, b) => {
-            var aLength = a.split('\\')
-            var bLength = b.split('\\')
+            var aLength = a.split(path.sep)
+            var bLength = b.split(path.sep)
 
             if (aLength == bLength)
                 return 0
 
             // Order from longest file path to shortest.
             return aLength > bLength ? -1 : 1
-        }).map(path => {
-            var steps = path.split('\\')
-            var baseDir = mockserver.directory.split('\\')
+        }).map(dir => {
+            var steps = dir.split(path.sep)
+            var baseDir = mockserver.directory.split(path.sep)
             steps.splice(0, baseDir.length)
-            return steps.join('\\')
+            return steps.join(path.sep)
         })
     
-    steps = removeBlanks(path.split('/'))
+    steps = removeBlanks(dir.split('/'))
     var length = steps.length
     for (let index = 0; index < length; index++) {
-        var dupeSteps = removeBlanks(path.split('/'))
+        var dupeSteps = removeBlanks(dir.split('/'))
         dupeSteps[index] = '__'
-        var testPath = dupeSteps.join('\\')
+        var testPath = dupeSteps.join(path.sep)
         var matchFound = res.includes(testPath);
         if (matchFound) {
             newPath = testPath
