@@ -229,6 +229,13 @@ GET /users/1000
 GET /users/__/GET.mock
 ```
 
+ex:
+```
+GET /users/1000/detail
+
+GET /users/__/detail/GET.mock
+```
+
 ## Custom imports
 Say you have some json you want to use in your unit tests, and also serve as the body of the call. You can use this import syntax:
 
