@@ -134,9 +134,9 @@ function getWildcardPath(dir) {
     return newPath;
 }
 
-function flatten(lists) {
-    return lists.reduce((a, b) => a.concat(b), []);
-}
+function flattenDeep(directories){
+    return directories.reduce((acc, val) => Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val), []);
+ }
 
 function getDirectories(srcpath) {
     return fs.readdirSync(srcpath)
@@ -145,7 +145,10 @@ function getDirectories(srcpath) {
 }
 
 function getDirectoriesRecursive(srcpath) {
-    return [srcpath, ...flatten(getDirectories(srcpath).map(getDirectoriesRecursive))];
+    var nestedDirectories = getDirectories(srcpath).map(getDirectoriesRecursive);
+    var directories = flattenDeep(nestedDirectories);
+    directories.push(srcpath)
+    return directories;
 }
 
 /**
