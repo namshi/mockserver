@@ -331,6 +331,20 @@ describe('mockserver', function() {
               assert.equal(res.body, 'this always comes up\n');
           });
 
+          it('wildcard matches directories named foo/__/bar with numeric slug', function() {
+            processRequest('/wildcard-extended/123/foobar', 'GET');
+
+            assert.equal(res.status, 200);
+            assert.equal(res.body, 'wildcards-extended');
+          });
+
+          it('wildcard matches directories named foo/__/bar with string slug', function() {
+            processRequest('/wildcard-extended/abc/foobar', 'GET');
+
+            assert.equal(res.status, 200);
+            assert.equal(res.body, 'wildcards-extended');
+          });
+
           it('__ not used if more specific match exist', function() {
               processRequest('/wildcard/exact', 'GET');
 
