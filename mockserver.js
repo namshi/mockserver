@@ -120,7 +120,7 @@ function getWildcardPath(dir) {
     
     steps = removeBlanks(dir.split('/'))
     var length = steps.length
-    for (let index = 0; index < length; index++) {
+    for (var index = 0; index < length; index++) {
         var dupeSteps = removeBlanks(dir.split('/'))
         dupeSteps[index] = '__'
         var testPath = dupeSteps.join(path.sep)
