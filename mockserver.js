@@ -101,7 +101,7 @@ function getWildcardPath(dir) {
 
     var res = getDirectoriesRecursive(mockserver.directory).filter(dir => {
             var directories = dir.split(path.sep)
-            return directories.includes('__')
+            return directories.indexOf('__') >= 0
         }).sort((a, b) => {
             var aLength = a.split(path.sep)
             var bLength = b.split(path.sep)
@@ -124,7 +124,7 @@ function getWildcardPath(dir) {
         var dupeSteps = removeBlanks(dir.split('/'))
         dupeSteps[index] = '__'
         var testPath = dupeSteps.join(path.sep)
-        var matchFound = res.includes(testPath);
+        var matchFound =  res.indexOf(testPath) >= 0;
         if (matchFound) {
             newPath = testPath
             break
