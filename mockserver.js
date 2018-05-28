@@ -86,20 +86,69 @@ function removeBlanks(array) {
   return array.filter(function (i) { return i; });
 }
 
-function getWildcardPath(path) {
-  var steps = removeBlanks(path.split('/')),
+function getWildcardPath(dir) {
+  var steps = removeBlanks(dir.split('/')),
       testPath,
       newPath,
       exists = false;
 
-    while(steps.length && !newPath) {
+    while(steps.length) {
         steps.pop();
         testPath = join(steps.join('/'), '/__');
         exists = fs.existsSync(join(mockserver.directory, testPath));
         if(exists) { newPath = testPath; }
     }
 
+    var res = getDirectoriesRecursive(mockserver.directory).filter(dir => {
+            var directories = dir.split(path.sep)
+            return directories.indexOf('__') >= 0
+        }).sort((a, b) => {
+            var aLength = a.split(path.sep)
+            var bLength = b.split(path.sep)
+
+            if (aLength == bLength)
+                return 0
+
+            // Order from longest file path to shortest.
+            return aLength > bLength ? -1 : 1
+        }).map(dir => {
+            var steps = dir.split(path.sep)
+            var baseDir = mockserver.directory.split(path.sep)
+            steps.splice(0, baseDir.length)
+            return steps.join(path.sep)
+        })
+    
+    steps = removeBlanks(dir.split('/'))
+    var length = steps.length
+    for (var index = 0; index < length; index++) {
+        var dupeSteps = removeBlanks(dir.split('/'))
+        dupeSteps[index] = '__'
+        var testPath = dupeSteps.join(path.sep)
+        var matchFound =  res.indexOf(testPath) >= 0;
+        if (matchFound) {
+            newPath = testPath
+            break
+        }
+    }
+
     return newPath;
+}
+
+function flattenDeep(directories){
+    return directories.reduce((acc, val) => Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val), []);
+ }
+
+function getDirectories(srcpath) {
+    return fs.readdirSync(srcpath)
+        .map(file => path.join(srcpath, file))
+        .filter(path => fs.statSync(path).isDirectory());
+}
+
+function getDirectoriesRecursive(srcpath) {
+    var nestedDirectories = getDirectories(srcpath).map(getDirectoriesRecursive);
+    var directories = flattenDeep(nestedDirectories);
+    directories.push(srcpath)
+    return directories;
 }
 
 /**

@@ -2,10 +2,11 @@ var MockReq = require('mock-req');
 var assert = require("assert");
 var colors = require('colors');
 var mockserver = require("./../mockserver");
+var path = require('path')
 
 var res;
 var req;
-var mocksDirectory = './test/mocks';
+var mocksDirectory = path.join('.', 'test', 'mocks');
 
 var verbose = process.env.DEBUG === 'true' || false;
 
@@ -329,6 +330,20 @@ describe('mockserver', function() {
 
               assert.equal(res.status, 200);
               assert.equal(res.body, 'this always comes up\n');
+          });
+
+          it('wildcard matches directories named foo/__/bar with numeric slug', function() {
+            processRequest('/wildcard-extended/123/foobar', 'GET');
+
+            assert.equal(res.status, 200);
+            assert.equal(res.body, 'wildcards-extended');
+          });
+
+          it('wildcard matches directories named foo/__/bar with string slug', function() {
+            processRequest('/wildcard-extended/abc/foobar', 'GET');
+
+            assert.equal(res.status, 200);
+            assert.equal(res.body, 'wildcards-extended');
           });
 
           it('__ not used if more specific match exist', function() {
