@@ -248,6 +248,15 @@ Content-Type: application/json
 
 whereby `./data.json` is a file relative to the including mock file. You can have as many imports as you want per mock file.
 
+You can also import `javascript` modules to create dynamic responses:
+```js
+// script.js
+module.exports = {
+    id: Math.random().toString(36).substring(7),
+    date: new Date()
+}
+``` 
+Then import the file as above `#import './script.js'`
 ## Tests
 
 Tests run on travis, but if you wanna run them locally you simply
