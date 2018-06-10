@@ -71,10 +71,14 @@ var parse = function (content, file) {
     if (/^#import/m.test(body)) {
         var context = path.parse(file).dir + '/';
 
-        body = body.replace(/^#import (.*);/m, function (includeStatement, file, data) {
+        body = body.replace(/^#import (.*);/m, function (includeStatement, file) {
             var importThisFile = file.replace(/['"]/g, '');
-
-            return fs.readFileSync(path.join(context, importThisFile));
+            var content = fs.readFileSync(path.join(context, importThisFile));
+            if (importThisFile.endsWith(".js")) {
+                return JSON.stringify(eval(content.toString()));
+            } else {
+                return content;
+            }
         })
         .replace(/\r\n?/g, '\n');
     }

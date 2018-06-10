@@ -317,6 +317,12 @@ describe('mockserver', function() {
             assert.equal(res.body, 'stuff\n'+JSON.stringify({foo: 'bar'}, null, 4)+'\naround me');
         });
 
+        it('should be able to handle imports with js scripts', function() {
+            processRequest('/importjs', 'GET');
+            assert.equal(res.status, 200);
+            assert.ok(Date.parse(JSON.parse(res.body).date));
+        });
+
         describe('wildcard directories', function() {
           it('wildcard matches directories named __ with numeric slug', function() {
               processRequest('/wildcard/123', 'GET');
