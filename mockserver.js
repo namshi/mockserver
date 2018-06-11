@@ -21,7 +21,17 @@ var parseStatus = function (header) {
 var parseHeader = function (header) {
     header = header.split(': ');
 
-    return {key: normalizeHeader(header[0]), value: header[1]};
+    return {key: normalizeHeader(header[0]), value: parseValue(header[1])};
+};
+
+var parseValue = function(value) {
+    if (/^#header/m.test(value)) {
+        return value.replace(/^#header (.*);/m, function (statement, val) {
+            var expression = val.replace(/[${}]/g, '');
+            return eval(expression);
+        }).replace(/\r\n?/g, '\n');
+    }
+    return value;
 };
 
 /**
