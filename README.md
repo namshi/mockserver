@@ -257,6 +257,11 @@ module.exports = {
 }
 ``` 
 Then import the file as above `#import './script.js'`
+
+Dynamic values of headers can be filled with valid JS statements such as:  
+```
+X-Subject-Token: #header ${require('uuid/v4')()};
+```
 ## Tests
 
 Tests run on travis, but if you wanna run them locally you simply

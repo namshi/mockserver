@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+X-Subject-Token: #header ${new Date()};
+
+dynamic headers

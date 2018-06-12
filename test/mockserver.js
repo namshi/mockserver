@@ -323,6 +323,13 @@ describe('mockserver', function() {
             assert.ok(Date.parse(JSON.parse(res.body).date));
         });
 
+        it('should be able to handle dynamic header values', function() {
+            processRequest('/dynamic-headers', 'GET');
+            assert.equal(res.status, 200);
+            assert.ok(Date.parse(res.headers['X-Subject-Token']));
+            assert.equal(res.body, 'dynamic headers\n');
+        });
+
         describe('wildcard directories', function() {
           it('wildcard matches directories named __ with numeric slug', function() {
               processRequest('/wildcard/123', 'GET');
