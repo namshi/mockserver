@@ -52,7 +52,7 @@ var prepareWatchedHeaders = function () {
  * returning an HTTP-ish object with
  * status code, headers and body.
  */
-var parse = function (content, file) {
+var parse = function (content, file, originalBody) {
     var headers         = {};
     var body;
     var bodyContent     = [];
@@ -85,16 +85,24 @@ var parse = function (content, file) {
             var importThisFile = file.replace(/['"]/g, '');
             var content = fs.readFileSync(path.join(context, importThisFile));
             if (importThisFile.endsWith(".js")) {
-                return JSON.stringify(eval(content.toString()));
+                return JSON.stringify(evaluateJsFileContent(content, originalBody));
             } else {
                 return content;
             }
-        })
-        .replace(/\r\n?/g, '\n');
+        }).replace(/\r\n?/g, '\n');
     }
 
-    return {status: status, headers: headers, body: body};
+    return { status: status, headers: headers, body: body };
 };
+
+function evaluateJsFileContent(fileContent, originalRequestBody) {
+    var content = eval(fileContent.toString());
+    if (typeof content === 'function') {
+        return content(JSON.parse(originalRequestBody));
+    } else {
+        return content;
+    }
+}
 
 function removeBlanks(array) {
   return array.filter(function (i) { return i; });
@@ -293,11 +301,11 @@ var mockserver = {
             matched = getContentFromPermutations(path, method, body, query, permutations.slice(0));
         }
 
-        if(matched.content) {
-            var mock = parse(matched.content, join(mockserver.directory, path, matched.prefix));
-            res.writeHead(mock.status, mock.headers);
+          if (matched.content) {
+              var mock = parse(matched.content, join(mockserver.directory, path, matched.prefix), body);
+              res.writeHead(mock.status, mock.headers);
 
-            return res.end(mock.body);
+              return res.end(mock.body);
         } else {
             res.writeHead(404);
             res.end('Not Mocked');

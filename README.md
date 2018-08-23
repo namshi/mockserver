@@ -258,6 +258,16 @@ module.exports = {
 ``` 
 Then import the file as above `#import './script.js'`
 
+You can also use function to build dynamic response:
+```js
+// script.js
+module.exports = function(incomingBody) {
+    return {
+        prop: incomingBody.foo ? 'bar' : 'baz'
+    }
+}
+```
+
 Dynamic values of headers can be filled with valid JS statements such as:  
 ```
 X-Subject-Token: #header ${require('uuid/v4')()};
