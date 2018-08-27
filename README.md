@@ -262,6 +262,17 @@ Dynamic values of headers can be filled with valid JS statements such as:
 ```
 X-Subject-Token: #header ${require('uuid/v4')()};
 ```
+You can also use function to build dynamic response:
+```js
+// script.js
+module.exports = function(request) {
+    return {
+        prop: request.body.indexOf('foo') !== -1 ? 'bar' : 'baz'
+    }
+}
+```
+Request object has following properties: body, query, headers. Since mockserver makes no assumptions on content-type, you have to parse body on your own if you wish to interpret it as JSON.
+
 ## Tests
 
 Tests run on travis, but if you wanna run them locally you simply
