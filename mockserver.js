@@ -3,7 +3,6 @@ const path = require('path');
 const join = path.join;
 const Combinatorics = require('js-combinatorics');
 const normalizeHeader = require('header-case-normalizer');
-const colors = require('colors')
 
 /**
  * Returns the status code out of the
@@ -115,7 +114,7 @@ function getWildcardPath(dir) {
 
     const res = getDirectoriesRecursive(mockserver.directory).filter(dir => {
             const directories = dir.split(path.sep);
-            return directories.indexOf('__') >= 0
+            return directories.includes('__');
         }).sort((a, b) => {
             const aLength = a.split(path.sep)
             const bLength = b.split(path.sep)
@@ -138,7 +137,7 @@ function getWildcardPath(dir) {
         const dupeSteps = removeBlanks(dir.split('/'))
         dupeSteps[index] = '__'
         testPath = dupeSteps.join(path.sep)
-        const matchFound =  res.indexOf(testPath) >= 0;
+        const matchFound =  res.includes(testPath);
         if (matchFound) {
             newPath = testPath
             break

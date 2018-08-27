@@ -1,6 +1,5 @@
 var MockReq = require('mock-req');
 var assert = require("assert");
-var colors = require('colors');
 var mockserver = require("./../mockserver");
 var path = require('path')
 
