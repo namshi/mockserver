@@ -1,16 +1,16 @@
-var fs = require('fs');
-var path = require('path');
-var join = path.join;
-var Combinatorics = require('js-combinatorics');
-var normalizeHeader = require('header-case-normalizer');
-var colors = require('colors')
+const fs = require('fs');
+const path = require('path');
+const join = path.join;
+const Combinatorics = require('js-combinatorics');
+const normalizeHeader = require('header-case-normalizer');
+const colors = require('colors')
 
 /**
  * Returns the status code out of the
  * first line of an HTTP response
  * (ie. HTTP/1.1 200 Ok)
  */
-var parseStatus = function (header) {
+function parseStatus(header) {
     return header.split(' ')[1];
 };
 
@@ -18,16 +18,16 @@ var parseStatus = function (header) {
  * Parses an HTTP header, splitting
  * by colon.
  */
-var parseHeader = function (header) {
+const parseHeader = function (header) {
     header = header.split(': ');
 
     return {key: normalizeHeader(header[0]), value: parseValue(header[1])};
 };
 
-var parseValue = function(value) {
+const parseValue = function(value) {
     if (/^#header/m.test(value)) {
         return value.replace(/^#header (.*);/m, function (statement, val) {
-            var expression = val.replace(/[${}]/g, '');
+            const expression = val.replace(/[${}]/g, '');
             return eval(expression);
         }).replace(/\r\n?/g, '\n');
     }
@@ -38,9 +38,9 @@ var parseValue = function(value) {
  * Prepares headers to watch, no duplicates, non-blanks.
  * Priority exports over ENV definition.
  */
-var prepareWatchedHeaders = function () {
-    var exportHeaders = module.exports.headers && module.exports.headers.toString();
-    var headers = (exportHeaders || process.env.MOCK_HEADERS || '').split(',');
+const prepareWatchedHeaders = function () {
+    const exportHeaders = module.exports.headers && module.exports.headers.toString();
+    const headers = (exportHeaders || process.env.MOCK_HEADERS || '').split(',');
 
     return headers.filter(function(item, pos, self) {
         return item && self.indexOf(item) == pos;
@@ -52,13 +52,13 @@ var prepareWatchedHeaders = function () {
  * returning an HTTP-ish object with
  * status code, headers and body.
  */
-var parse = function (content, file) {
-    var headers         = {};
-    var body;
-    var bodyContent     = [];
+const parse = function (content, file) {
+    const headers         = {};
+    let body;
+    const bodyContent     = [];
     content             = content.split(/\r?\n/);
-    var status          = parseStatus(content[0]);
-    var headerEnd       = false;
+    const status          = parseStatus(content[0]);
+    let headerEnd       = false;
     delete content[0];
 
     content.forEach(function (line) {
@@ -70,7 +70,7 @@ var parse = function (content, file) {
                 headerEnd = true;
                 break;
             default:
-                var header = parseHeader(line);
+                const header = parseHeader(line);
                 headers[header.key] = header.value;
                 break;
         }
@@ -79,11 +79,11 @@ var parse = function (content, file) {
     body = bodyContent.join('\n');
 
     if (/^#import/m.test(body)) {
-        var context = path.parse(file).dir + '/';
+        const context = path.parse(file).dir + '/';
 
         body = body.replace(/^#import (.*);/m, function (includeStatement, file) {
-            var importThisFile = file.replace(/['"]/g, '');
-            var content = fs.readFileSync(path.join(context, importThisFile));
+            const importThisFile = file.replace(/['"]/g, '');
+            const content = fs.readFileSync(path.join(context, importThisFile));
             if (importThisFile.endsWith(".js")) {
                 return JSON.stringify(eval(content.toString()));
             } else {
@@ -101,10 +101,10 @@ function removeBlanks(array) {
 }
 
 function getWildcardPath(dir) {
-  var steps = removeBlanks(dir.split('/')),
-      testPath,
-      newPath,
-      exists = false;
+  let steps = removeBlanks(dir.split('/'));
+  let testPath;
+  let newPath;
+  let exists = false;
 
     while(steps.length) {
         steps.pop();
@@ -113,12 +113,12 @@ function getWildcardPath(dir) {
         if(exists) { newPath = testPath; }
     }
 
-    var res = getDirectoriesRecursive(mockserver.directory).filter(dir => {
-            var directories = dir.split(path.sep)
+    const res = getDirectoriesRecursive(mockserver.directory).filter(dir => {
+            const directories = dir.split(path.sep);
             return directories.indexOf('__') >= 0
         }).sort((a, b) => {
-            var aLength = a.split(path.sep)
-            var bLength = b.split(path.sep)
+            const aLength = a.split(path.sep)
+            const bLength = b.split(path.sep)
 
             if (aLength == bLength)
                 return 0
@@ -126,19 +126,19 @@ function getWildcardPath(dir) {
             // Order from longest file path to shortest.
             return aLength > bLength ? -1 : 1
         }).map(dir => {
-            var steps = dir.split(path.sep)
-            var baseDir = mockserver.directory.split(path.sep)
+            const steps = dir.split(path.sep)
+            const baseDir = mockserver.directory.split(path.sep)
             steps.splice(0, baseDir.length)
             return steps.join(path.sep)
         })
     
     steps = removeBlanks(dir.split('/'))
-    var length = steps.length
-    for (var index = 0; index < length; index++) {
-        var dupeSteps = removeBlanks(dir.split('/'))
+    
+    for (let index = 0; index < steps.length; index++) {
+        const dupeSteps = removeBlanks(dir.split('/'))
         dupeSteps[index] = '__'
-        var testPath = dupeSteps.join(path.sep)
-        var matchFound =  res.indexOf(testPath) >= 0;
+        testPath = dupeSteps.join(path.sep)
+        const matchFound =  res.indexOf(testPath) >= 0;
         if (matchFound) {
             newPath = testPath
             break
@@ -159,8 +159,8 @@ function getDirectories(srcpath) {
 }
 
 function getDirectoriesRecursive(srcpath) {
-    var nestedDirectories = getDirectories(srcpath).map(getDirectoriesRecursive);
-    var directories = flattenDeep(nestedDirectories);
+    const nestedDirectories = getDirectories(srcpath).map(getDirectoriesRecursive);
+    const directories = flattenDeep(nestedDirectories);
     directories.push(srcpath)
     return directories;
 }
@@ -203,7 +203,7 @@ function getBodyOrQueryString(body, query) {
  * for now).
  */
 function getBody(req, callback) {
-  var body = '';
+  let body = '';
   
   req.on('data', function(b){
     body = body + b.toString();
@@ -215,9 +215,9 @@ function getBody(req, callback) {
 }
 
 function getMockedContent(path, prefix, body, query) {
-    var mockName =  prefix + (getBodyOrQueryString(body, query) || '') + '.mock';
-    var mockFile = join(mockserver.directory, path, mockName);
-    var content;
+    const mockName =  prefix + (getBodyOrQueryString(body, query) || '') + '.mock';
+    const mockFile = join(mockserver.directory, path, mockName);
+    let content;
 
     try {
         content = fs.readFileSync(mockFile, {encoding: 'utf8'});
@@ -235,7 +235,7 @@ function getMockedContent(path, prefix, body, query) {
 }
 
 function getContentFromPermutations(path, method, body, query, permutations) {
-    var content, prefix;
+    let content, prefix;
 
     while(permutations.length) {
         prefix = method + permutations.pop().join('');
@@ -245,7 +245,7 @@ function getContentFromPermutations(path, method, body, query, permutations) {
     return { content: content, prefix: prefix };
 }
 
-var mockserver = {
+const mockserver = {
     directory:       '.',
     verbose:         false,
     headers:         [],
@@ -256,10 +256,10 @@ var mockserver = {
     },
     handle:          function(req, res) {
       getBody(req, function(body) {
-        var url = req.url;
-        var path = url;
+        const url = req.url;
+        let path = url;
 
-        var queryIndex = url.indexOf('?'),
+        const queryIndex = url.indexOf('?'),
             query = queryIndex >= 0 ? url.substring(queryIndex).replace(/\?/g, '') : '',
             method = req.method.toUpperCase(),
             headers = [];
@@ -279,7 +279,7 @@ var mockserver = {
 
         // Now, permute the possible headers, and look for any matching files, prioritizing on
         // both # of headers and the original header order
-        var matched,
+        let matched,
             permutations = [[]];
 
         if(headers.length) {
@@ -294,7 +294,7 @@ var mockserver = {
         }
 
         if(matched.content) {
-            var mock = parse(matched.content, join(mockserver.directory, path, matched.prefix));
+            const mock = parse(matched.content, join(mockserver.directory, path, matched.prefix));
             res.writeHead(mock.status, mock.headers);
 
             return res.end(mock.body);
