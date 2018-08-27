@@ -4,7 +4,8 @@
   "description": "Easily mock your webservices while testing frontends.",
   "main": "mockserver.js",
   "scripts": {
-    "test": "mocha -b"
+    "test": "mocha -b",
+    "coverage": "nyc mocha"
   },
   "bin": {
     "mockserver": "bin/mockserver.js"
@@ -35,7 +36,10 @@
   },
   "devDependencies": {
     "mocha": "^2.0.1",
-    "mock-req": "^0.2.0"
+    "mock-req": "^0.2.0",
+    "nyc": "^13.0.1"
   },
-  "engines" : { "node" : ">=6.0" } 
+  "engines": {
+    "node": ">=6.0"
+  }
 }
