@@ -329,7 +329,24 @@ describe('mockserver', function() {
             assert.ok(Date.parse(res.headers['X-Subject-Token']));
             assert.equal(res.body, 'dynamic headers\n');
         });
+        
+        it('should evaluate mock exporting function', (done) => {
+            var req = new MockReq({
+                method: 'POST',
+                url: '/importjs'
+            });
+            req.write('{"val" : "requestValue"}');
+            req.end();
 
+            mockserver(mocksDirectory, verbose)(req, res);
+
+            req.on('end', function () {
+                assert.equal(res.status, 200);
+                assert.equal(res.body, '{"val":"requestValue"}');
+                done();
+            });
+        });
+        
         describe('wildcard directories', function() {
           it('wildcard matches directories named __ with numeric slug', function() {
               processRequest('/wildcard/123', 'GET');
@@ -372,22 +389,6 @@ describe('mockserver', function() {
               assert.equal(res.status, 404);
           });
 
-          it('should evaluate mock exporting function', (done) => {
-              var req = new MockReq({
-                  method: 'POST',
-                  url: '/importjs'
-              });
-              req.write('{"val" : "requestValue"}');
-              req.end();
-
-              mockserver(mocksDirectory, verbose)(req, res);
-
-              req.on('end', function () {
-                  assert.equal(res.status, 200);
-                  assert.equal(res.body, '{"val":"requestValue"}');
-                  done();
-              });
-          });
         });
     });
 });

@@ -52,7 +52,7 @@ var prepareWatchedHeaders = function () {
  * returning an HTTP-ish object with
  * status code, headers and body.
  */
-var parse = function (content, file, originalBody) {
+var parse = function (content, file, requestData) {
     var headers         = {};
     var body;
     var bodyContent     = [];
@@ -85,7 +85,7 @@ var parse = function (content, file, originalBody) {
             var importThisFile = file.replace(/['"]/g, '');
             var content = fs.readFileSync(path.join(context, importThisFile));
             if (importThisFile.endsWith(".js")) {
-                return JSON.stringify(evaluateJsFileContent(content, originalBody));
+                return JSON.stringify(evaluateJsFileContent(content, requestData));
             } else {
                 return content;
             }
@@ -95,10 +95,10 @@ var parse = function (content, file, originalBody) {
     return { status: status, headers: headers, body: body };
 };
 
-function evaluateJsFileContent(fileContent, originalRequestBody) {
+function evaluateJsFileContent(fileContent, requestData) {
     var content = eval(fileContent.toString());
     if (typeof content === 'function') {
-        return content(JSON.parse(originalRequestBody));
+        return content(requestData);
     } else {
         return content;
     }
@@ -302,7 +302,12 @@ var mockserver = {
         }
 
           if (matched.content) {
-              var mock = parse(matched.content, join(mockserver.directory, path, matched.prefix), body);
+              var requestData = {
+                  body: body,
+                  headers: headers,
+                  query: query
+              }
+              var mock = parse(matched.content, join(mockserver.directory, path, matched.prefix), requestData);
               res.writeHead(mock.status, mock.headers);
 
               return res.end(mock.body);

@@ -1,5 +1,6 @@
 module.exports = function (request) {
-        return {
-            val : request.val
-        }
+    var body = JSON.parse(request.body)
+    return {
+        val: body.val
+    }
 }
