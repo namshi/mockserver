@@ -1,13 +1,13 @@
-var MockReq = require('mock-req');
-var assert = require("assert");
-var mockserver = require("./../mockserver");
-var path = require('path')
+const MockReq = require('mock-req');
+const assert = require("assert");
+const mockserver = require("./../mockserver");
+const path = require('path')
 
-var res;
-var req;
-var mocksDirectory = path.join('.', 'test', 'mocks');
+let res;
+let req;
+const mocksDirectory = path.join('.', 'test', 'mocks');
 
-var verbose = process.env.DEBUG === 'true' || false;
+const verbose = process.env.DEBUG === 'true' || false;
 
 /**
  * Processes request
@@ -22,9 +22,9 @@ function processRequest(url, method) {
  * Processes request within custom ENV
  */
 function processRequestEnv(url, method, envs) {
-    var cleanupEnv = function() {};
+    let cleanupEnv = function() {};
 
-    for (var name in envs) {
+    for (let name in envs) {
        if (envs.hasOwnProperty(name)) {
           process.env[name] = envs[name];
 
@@ -256,7 +256,7 @@ describe('mockserver', function() {
         });
 
         it('should be able to include POST bodies in the mock location', function(done) {
-            var req = new MockReq({
+            const req = new MockReq({
                 method: 'POST',
                 url: '/return-200',
                 headers: {
@@ -276,7 +276,7 @@ describe('mockserver', function() {
         });
 
         it('Should default to POST.mock if no match for body is found', function(done) {
-            var req = new MockReq({
+            const req = new MockReq({
                 method: 'POST',
                 url: '/return-200',
                 headers: {
