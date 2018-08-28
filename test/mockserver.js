@@ -322,6 +322,40 @@ describe('mockserver', function() {
             assert.ok(Date.parse(JSON.parse(res.body).date));
         });
 
+        it('should be able to handle imports with js scripts varying responses according to the the request - 1', function(done) {
+            var req = new MockReq({
+                method: 'POST',
+                url: '/importjs',
+                headers: {}
+            });
+            req.write(JSON.stringify({foo: '123'}));
+            req.end();
+
+            mockserver(mocksDirectory, verbose)(req, res);
+
+            req.on('end', function() {
+                assert.equal(JSON.parse(res.body).prop, 'bar');
+                done();
+            });
+        });
+
+        it('should be able to handle imports with js scripts varying responses according to the the request - 2', function(done) {
+            var req = new MockReq({
+                method: 'POST',
+                url: '/importjs',
+                headers: {}
+            });
+            req.write(JSON.stringify({boo: '123'}));
+            req.end();
+
+            mockserver(mocksDirectory, verbose)(req, res);
+
+            req.on('end', function() {
+                assert.equal(JSON.parse(res.body).prop, 'baz');
+                done();
+            });
+        });
+
         it('should be able to handle dynamic header values', function() {
             processRequest('/dynamic-headers', 'GET');
             assert.equal(res.status, 200);

@@ -51,7 +51,7 @@ const prepareWatchedHeaders = function () {
  * returning an HTTP-ish object with
  * status code, headers and body.
  */
-const parse = function (content, file) {
+const parse = function (content, file, request) {
     const headers         = {};
     let body;
     const bodyContent     = [];
@@ -132,7 +132,7 @@ function getWildcardPath(dir) {
         })
     
     steps = removeBlanks(dir.split('/'))
-    
+
     for (let index = 0; index < steps.length; index++) {
         const dupeSteps = removeBlanks(dir.split('/'))
         dupeSteps[index] = '__'
@@ -255,6 +255,7 @@ const mockserver = {
     },
     handle:          function(req, res) {
       getBody(req, function(body) {
+        req.body = body;
         const url = req.url;
         let path = url;
 
@@ -293,7 +294,7 @@ const mockserver = {
         }
 
         if(matched.content) {
-            const mock = parse(matched.content, join(mockserver.directory, path, matched.prefix));
+            const mock = parse(matched.content, join(mockserver.directory, path, matched.prefix), req);
             res.writeHead(mock.status, mock.headers);
 
             return res.end(mock.body);
