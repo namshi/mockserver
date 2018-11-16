@@ -392,6 +392,13 @@ describe('mockserver', function() {
             assert.equal(res.body, 'wildcards-extended');
           });
 
+          it('wildcard matches directories named foo/__/bar/__/fizz', function() {
+            processRequest('/wildcard-extended/abc/foobar/def/fizzbuzz', 'GET');
+
+            assert.equal(res.status, 200);
+            assert.equal(res.body, 'wildcards-extended-multiple');
+          });
+
           it('__ not used if more specific match exist', function() {
               processRequest('/wildcard/exact', 'GET');
 

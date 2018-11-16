@@ -134,18 +134,30 @@ function getWildcardPath(dir) {
     
     steps = removeBlanks(dir.split('/'))
 
-    for (let index = 0; index < steps.length; index++) {
-        const dupeSteps = removeBlanks(dir.split('/'))
-        dupeSteps[index] = '__'
-        testPath = dupeSteps.join(path.sep)
-        const matchFound =  res.includes(testPath);
-        if (matchFound) {
-            newPath = testPath
-            break
-        }
-    }
+    newPath = matchWildcardPaths(res, steps) || newPath;
 
     return newPath;
+}
+
+function matchWildcardPaths(res, steps) {
+    for (let resIndex = 0; resIndex < res.length; resIndex++) {
+        const dirSteps = res[resIndex].split(/\/|\\/);
+        if (dirSteps.length !== steps.length) { continue; }
+        const result = matchWildcardPath(steps, dirSteps);
+        if (result) { return result; }
+    }
+    return null;
+}
+
+function matchWildcardPath(steps, dirSteps) {
+    for (let stepIndex = 1; stepIndex <= steps.length; stepIndex++) {
+        const step = steps[steps.length - stepIndex];
+        const dirStep = dirSteps[dirSteps.length - stepIndex];
+        if (step !== dirStep && dirStep != '__') {
+            return null;
+        }
+    }
+    return '/' + dirSteps.join('/');
 }
 
 function flattenDeep(directories){
