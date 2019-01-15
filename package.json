@@ -5,7 +5,8 @@
   "main": "mockserver.js",
   "scripts": {
     "test": "mocha -b",
-    "coverage": "nyc mocha"
+    "coverage": "nyc mocha",
+    "clean-install": "npm cache clean --force && rm -Rf node_modules && npm install"
   },
   "bin": {
     "mockserver": "bin/mockserver.js"

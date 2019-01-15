@@ -377,10 +377,9 @@ const mockserver = {
           join(mockserver.directory, path, matched.prefix),
           req
         );
-        let delay = getResponseDelay(mock.headers);
+        const delay = getResponseDelay(mock.headers);
         Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, delay);
         res.writeHead(mock.status, mock.headers);
-
         return res.end(mock.body);
       } else {
         res.writeHead(404);
