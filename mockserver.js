@@ -44,7 +44,7 @@ const prepareWatchedHeaders = function () {
 
     return headers.filter(function(item, pos, self) {
         return item && self.indexOf(item) == pos;
-    });
+    }).map(headername => headername.trim());
 }
 
 /**
