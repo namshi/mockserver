@@ -24,21 +24,20 @@ Mockserver serving mocks under "test/mocks" at http://localhost:8080
 or as a regular NPM module if you need to use it as
 a library within your code:
 
-``` bash
+```bash
 npm install mockserver
 ```
 
 then in your test file:
 
-``` javascript
-var http    =  require('http');
-var mockserver  =  require('mockserver');
+```javascript
+var http = require('http');
+var mockserver = require('mockserver');
 
 http.createServer(mockserver('path/to/your/mocks')).listen(9001);
 ```
 
-This will run a simple HTTP webserver, handled by mockserver, on port
-9001.
+This will run a simple HTTP webserver, handled by mockserver, on port 9001.
 
 At this point you can simply define your first mock: create a file in
 `path/to/your/mocks/example-response` called `GET.mock`:
@@ -143,7 +142,7 @@ hello/GET_Authorization=12345_X-My-Header=cow.mock
 **Note:** The order of the headers within the `headers` array determines the order of the values within the filename.
 
 The server will always attempt to match the file with the most tracked headers, then it will try permutations of
-headers until it finds one that matches.  This means that, in the previous example, the server will look for files
+headers until it finds one that matches. This means that, in the previous example, the server will look for files
 in this order:
 
 ```
@@ -157,6 +156,18 @@ hello/GET.mock
 The first one matched is the one returned, favoring more matches and headers earlier in the array.
 
 The `headers` array can be set or modified at any time.
+
+## Response Delays
+
+When building applications, we cannot always guarantee that our users have a fast connection, which
+is latency free. Also some HTTP calls inevitably take more time than we'd, like so we have added
+the ability to simulate HTTP call latency by setting a custom header
+
+```
+Response-Delay: 5000
+```
+
+The delay value is expected in milliseconds, if not set for a given file there will be no delay.
 
 ## Query string parameters and POST body
 
@@ -177,7 +188,7 @@ test/GET--a=b&c=d--.mock
 
 (This has been introduced to overcome issues in file naming on windows)
 
-To combine custom headers and query parameters, simply add the headers *then* add the parameters:
+To combine custom headers and query parameters, simply add the headers _then_ add the parameters:
 
 ```
 GET /hello?a=b
@@ -192,16 +203,18 @@ look for a file called `POST--Hello=World.mock`
 
 In the same way, if your POST body is a json like `{"json": "yesPlease"}`,
 mockserver will look for a file called `POST--{"json": "yesPlease"}.mock`.
-*Warning! This feature is* __NOT compatible with Windows__*. This is because Windows doesn't accept curly brackets as filenames.*
+_Warning! This feature is_ **NOT compatible with Windows**_. This is because Windows doesn't accept curly brackets as filenames._
 
 If no parametrized mock file is found, mockserver will default to the
 nearest headers based .mock file
 
 ex:
+
 ```
 GET /hello?a=b
 Authorization: 12345
 ```
+
 if there's no `hello/GET_Authorization=12345--a=b.mock`, we'll default to `hello/GET_Authorization=12345.mock` or to `hello/GET.mock`
 
 ## Wildcard slugs
@@ -216,6 +229,7 @@ Then to create one catchall, you can create another file `users/__/GET.mock`. Th
 for any other requests:
 
 ex:
+
 ```
 GET /users/2
 
@@ -223,6 +237,7 @@ GET /users/2/GET.mock
 ```
 
 ex:
+
 ```
 GET /users/1000
 
@@ -230,6 +245,7 @@ GET /users/__/GET.mock
 ```
 
 ex:
+
 ```
 GET /users/1000/detail
 
@@ -237,6 +253,7 @@ GET /users/__/detail/GET.mock
 ```
 
 ## Custom imports
+
 Say you have some json you want to use in your unit tests, and also serve as the body of the call. You can use this import syntax:
 
 ```
@@ -249,19 +266,25 @@ Content-Type: application/json
 whereby `./data.json` is a file relative to the including mock file. You can have as many imports as you want per mock file.
 
 You can also import `javascript` modules to create dynamic responses:
+
 ```js
 // script.js
 module.exports = {
-    id: Math.random().toString(36).substring(7),
-    date: new Date()
-}
-``` 
+  id: Math.random()
+    .toString(36)
+    .substring(7),
+  date: new Date(),
+};
+```
+
 Then import the file as above `#import './script.js'`
 
-Dynamic values of headers can be filled with valid JS statements such as:  
+Dynamic values of headers can be filled with valid JS statements such as:
+
 ```
 X-Subject-Token: #header ${require('uuid/v4')()};
 ```
+
 ## Tests
 
 Tests run on travis, but if you wanna run them locally you simply
