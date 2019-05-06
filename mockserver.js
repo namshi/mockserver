@@ -1,19 +1,4 @@
-// eslint-disable-next-line
-require("@babel/polyfill");
-require('@babel/register')({
-  ignore: [
-      (filePath) => {
-          const shouldIgnore = (
-              (filePath.indexOf('mockserver') < 0) &&
-              (filePath.indexOf('mocks') < 0)
-          );
-          if (!shouldIgnore) {
-              console.log('MOCKABLE REQUIRE', filePath);
-          }
-          return shouldIgnore;
-      },
-  ],
-});
+const babel = require("@babel/core");
 
 const fs = require('fs');
 const path = require('path');
@@ -106,7 +91,16 @@ const parse = function(content, file, request) {
         const importThisFile = file.replace(/['"]/g, '');
         const content = fs.readFileSync(path.join(context, importThisFile));
         if (importThisFile.endsWith('.js')) {
-          return JSON.stringify(eval(content.toString()));
+          return JSON.stringify(
+            eval(
+              babel.transform(
+                content.toString(),
+                {
+                  plugins: ["@babel/polyfill"],
+                }
+              )
+            )
+          );
         } else {
           return content;
         }
