@@ -1,3 +1,19 @@
+// eslint-disable-next-line
+require('@babel/register')({
+  ignore: [
+      (filePath) => {
+          const shouldIgnore = (
+              (filePath.indexOf('mockserver') < 0) &&
+              (filePath.indexOf('mocks') < 0)
+          );
+          if (!shouldIgnore) {
+              console.log('MOCKABLE REQUIRE', filePath);
+          }
+          return shouldIgnore;
+      },
+  ],
+});
+
 const fs = require('fs');
 const path = require('path');
 const colors = require('colors');
