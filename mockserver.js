@@ -1,4 +1,5 @@
 // eslint-disable-next-line
+require("@babel/polyfill");
 require('@babel/register')({
   ignore: [
       (filePath) => {

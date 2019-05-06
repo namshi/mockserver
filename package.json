@@ -31,6 +31,7 @@
   "homepage": "https://github.com/namshi/mockserver",
   "dependencies": {
     "@babel/core": "^7.4.4",
+    "@babel/polyfill": "^7.4.4",
     "@babel/register": "^7.4.4",
     "colors": "^1.3.2",
     "header-case-normalizer": "^1.0.3",
