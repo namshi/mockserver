@@ -1,5 +1,3 @@
-const babel = require("@babel/core");
-
 const fs = require('fs');
 const path = require('path');
 const colors = require('colors');
@@ -91,16 +89,7 @@ const parse = function(content, file, request) {
         const importThisFile = file.replace(/['"]/g, '');
         const content = fs.readFileSync(path.join(context, importThisFile));
         if (importThisFile.endsWith('.js')) {
-          return JSON.stringify(
-            eval(
-              babel.transform(
-                content.toString(),
-                {
-                  plugins: ["@babel/polyfill"],
-                }
-              )
-            )
-          );
+          return JSON.stringify(eval(content.toString()));
         } else {
           return content;
         }
