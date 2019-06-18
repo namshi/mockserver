@@ -321,12 +321,25 @@ describe('mockserver', function() {
       );
     });
 
+    it('should be able to handle multiple imports', function() {
+      processRequest('/import?multiple=true', 'GET');
+
+      assert.equal(res.status, 200);
+      assert.equal(
+        res.body,
+        '{\n' +
+        JSON.stringify({ foo: 'bar' }, null, 4) +
+        '\n' +
+        JSON.stringify({ foo: 'bar' }, null, 4) +
+        '\n}'
+      );
+    });
+
     it('should be able to handle imports with js scripts', function() {
       processRequest('/importjs', 'GET');
       assert.equal(res.status, 200);
       assert.ok(Date.parse(JSON.parse(res.body).date));
     });
-
     it('should be able to handle imports with js scripts varying responses according to the the request - 1', function(done) {
       var req = new MockReq({
         method: 'POST',

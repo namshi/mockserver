@@ -85,7 +85,7 @@ const parse = function(content, file, request) {
     const context = path.parse(file).dir + '/';
 
     body = body
-      .replace(/^#import (.*);/m, function(includeStatement, file) {
+      .replace(/^#import (.*);/gm, function(includeStatement, file) {
         const importThisFile = file.replace(/['"]/g, '');
         const content = fs.readFileSync(path.join(context, importThisFile));
         if (importThisFile.endsWith('.js')) {
