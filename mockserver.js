@@ -60,7 +60,24 @@ const parse = function(content, file, request) {
   let body;
   const bodyContent = [];
   content = content.split(/\r?\n/);
-  const status = parseStatus(content[0]);
+  let status = content[0];
+  if (/^#import/m.test(status)) {
+      const context = path.parse(file).dir + '/';
+
+      status = parseStatus(status
+          .replace(/^#import (.*);/m, function (includeStatement, file) {
+              const importThisFile = file.replace(/['"]/g, '');
+              const content = fs.readFileSync(path.join(context, importThisFile));
+              if (importThisFile.endsWith('.js')) {
+                  return JSON.stringify(eval(content.toString()));
+              } else {
+                  return content;
+              }
+          })
+          .replace(/\r\n?/g, '\n'));
+  } else {
+      status = parseStatus(content[0]);
+  }
   let headerEnd = false;
   delete content[0];
 
