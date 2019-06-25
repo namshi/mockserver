@@ -445,6 +445,38 @@ describe('mockserver', function() {
           assert.equal(val, 0, `Value found was ${val}`);
         });
       });
+      it('response status codes depends on request case 400 Bad request', function (done) {
+          var req = new MockReq({
+              method: 'POST',
+              url: '/headerimportjs',
+              headers: {},
+          });
+          req.write(JSON.stringify({ baz: '123' }));
+          req.end();
+
+          mockserver(mocksDirectory, verbose)(req, res);
+
+          req.on('end', function () {
+              assert.equal(res.status, '400');
+              done();
+          });
+      });
+      it('response status codes depends on request case 200 OK', function (done) {
+          var req = new MockReq({
+              method: 'POST',
+              url: '/headerimportjs',
+              headers: {},
+          });
+          req.write(JSON.stringify({ foo: '123' }));
+          req.end();
+
+          mockserver(mocksDirectory, verbose)(req, res);
+
+          req.on('end', function () {
+              assert.equal(res.status, '200');
+              done();
+          });
+      });
     });
   });
 });
