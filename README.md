@@ -285,6 +285,27 @@ Dynamic values of headers can be filled with valid JS statements such as:
 X-Subject-Token: #header ${require('uuid/v4')()};
 ```
 
+## Custom response status
+
+You can specify response status (200, 201, 404. etc.) depends on request parameters. To do this, you neeed to use `#import './code.js';` in first line of your mock file:
+
+```
+#import './code.js';
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+
+{
+ "Random": "Content" 
+}
+```
+
+You import `javascript` modules to create dynamic code responses:
+
+```js
+// code.js
+module.exports = request.body.indexOf('foo') !== -1 ? 'HTTP/1.1 200 OK' : 'HTTP/1.1 400 Bad request'
+```
+
 ## Tests
 
 Tests run on travis, but if you wanna run them locally you simply

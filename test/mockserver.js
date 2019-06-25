@@ -445,7 +445,9 @@ describe('mockserver', function() {
           assert.equal(val, 0, `Value found was ${val}`);
         });
       });
-      it('response status codes depends on request case 400 Bad request', function (done) {
+    });
+    describe('Custom response codes', function() {
+        it('response status codes depends on request case 400 Bad request', function (done) {
           var req = new MockReq({
               method: 'POST',
               url: '/headerimportjs',
@@ -477,6 +479,6 @@ describe('mockserver', function() {
               done();
           });
       });
-    });
+    })
   });
 });
