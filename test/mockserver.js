@@ -2,6 +2,7 @@ const MockReq = require('mock-req');
 const assert = require('assert');
 const mockserver = require('./../mockserver');
 const path = require('path');
+const Monad = require('../monad');
 
 let res;
 let req;
@@ -481,4 +482,35 @@ describe('mockserver', function() {
       });
     })
   });
+});
+
+describe('Monad methods', function() {
+    let m;
+    function fn(val) {
+        return {
+            ...val,
+            b: 2
+        };
+    }
+    const testData = { a: 1 };
+    const expectData = { a: 1, b: 2 };
+    beforeEach(function() {
+        m = Monad.of(testData);
+    });
+
+    it('Monad have static method `of`', function() {
+        assert.equal(typeof Monad.of, 'function');
+    });
+    it('Monad method `of` should return Object type Monad', function() {
+        assert.equal(m instanceof Monad, true);
+    });
+    it('Monad method `map` should recive value and return Object type Monad', function() {
+        assert.equal(m.map(fn) instanceof Monad, true);
+    });
+    it('Monad method `join` should return value', function () {
+        assert.strictEqual(m.join(), testData);
+    });
+    it('Monad method `chain` should return value', function () {
+        assert.deepEqual(m.chain(fn), expectData);
+    });
 });
