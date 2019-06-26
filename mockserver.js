@@ -6,6 +6,8 @@ const Combinatorics = require('js-combinatorics');
 const normalizeHeader = require('header-case-normalizer');
 const Monad = require('./monad');
 const importHandler = require('./handlers/importHandler');
+const headerHandler = require('./handlers/headerHandlers');
+const evalHandler = require('./handlers/evalHandlers');
 /**
  * Returns the status code out of the
  * first line of an HTTP response
@@ -23,22 +25,19 @@ function parseStatus(header) {
  * Parses an HTTP header, splitting
  * by colon.
  */
-const parseHeader = function(header) {
+const parseHeader = function (header, context, request) {
   header = header.split(': ');
 
-  return { key: normalizeHeader(header[0]), value: parseValue(header[1]) };
+  return { key: normalizeHeader(header[0]), value: parseValue(header[1], context, request) };
 };
 
-const parseValue = function(value) {
-  if (/^#header/m.test(value)) {
-    return value
-      .replace(/^#header (.*);/m, function(statement, val) {
-        const expression = val.replace(/[${}]/g, '');
-        return eval(expression);
-      })
-      .replace(/\r\n?/g, '\n');
-  }
-  return value;
+const parseValue = function(value, context, request) {
+  return Monad
+    .of(value)
+    .map((value) => importHandler(value, context, request))
+    .map((value) => headerHandler(value, request))
+    .map((value) => evalHandler(value, request))
+    .join();
 };
 
 /**
@@ -69,6 +68,7 @@ const parse = function(content, file, request) {
   const status = Monad
     .of(content[0])
     .map((value) => importHandler(value, context, request))
+    .map((value) => evalHandler(value, context, request))
     .map(parseStatus)
     .join();
 
@@ -91,23 +91,12 @@ const parse = function(content, file, request) {
     }
   });
 
-  body = bodyContent.join('\n');
 
-  if (/^#import/m.test(body)) {
-    const context = path.parse(file).dir + '/';
-
-    body = body
-      .replace(/^#import (.*);/m, function(includeStatement, file) {
-        const importThisFile = file.replace(/['"]/g, '');
-        const content = fs.readFileSync(path.join(context, importThisFile));
-        if (importThisFile.endsWith('.js')) {
-          return JSON.stringify(eval(content.toString()));
-        } else {
-          return content;
-        }
-      })
-      .replace(/\r\n?/g, '\n');
-  }
+  body = Monad
+    .of(bodyContent.join('\n'))
+    .map((value) => importHandler(value, context, request))
+    .map((value) => evalHandler(value, context, request))
+    .join();
 
   return { status: status, headers: headers, body: body };
 };
