@@ -1,4 +1,4 @@
-module.exports = function evalHandlers(value, request) {
+module.exports = function evalHandler(value, request) {
   if (!/^#eval/m.test(value)) return value;
   return value
     .replace(/^#eval (.*);/m, function (statement, val) {
