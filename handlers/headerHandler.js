@@ -1,4 +1,4 @@
-module.exports = function headerHandlers(value, request) {
+module.exports = function headerHandler(value, request) {
   if (!/^#header/m.test(value)) return value;
   return value
     .replace(/^#header (.*);/m, function (statement, val) {

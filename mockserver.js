@@ -6,8 +6,8 @@ const Combinatorics = require('js-combinatorics');
 const normalizeHeader = require('header-case-normalizer');
 const Monad = require('./monad');
 const importHandler = require('./handlers/importHandler');
-const headerHandler = require('./handlers/headerHandlers');
-const evalHandler = require('./handlers/evalHandlers');
+const headerHandler = require('./handlers/headerHandler');
+const evalHandler = require('./handlers/evalHandler');
 /**
  * Returns the status code out of the
  * first line of an HTTP response
