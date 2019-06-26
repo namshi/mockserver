@@ -1,9 +1,8 @@
-module.exports = function headerHandlers(value, request) {
+module.exports = function evalHandlers(value, request) {
   if (!/^#eval/m.test(value)) return value;
   return value
     .replace(/^#eval (.*);/m, function (statement, val) {
-    const expression = val.replace(/[${}]/g, '');
-    return eval(expression);
+    return eval(val);
   })
     .replace(/\r\n?/g, '\n');
 }
