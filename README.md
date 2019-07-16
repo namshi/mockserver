@@ -287,7 +287,7 @@ X-Subject-Token: #header ${require('uuid/v4')()};
 
 ## Custom response status
 
-You can specify response status (200, 201, 404. etc.) depends on request parameters. To do this, you neeed to use `#import './code.js';` in first line of your mock file:
+You can specify response status (200, 201, 404. etc.) depending on request parameters. To do this, you need to use `#import './code.js';` in first line of your mock file:
 
 ```
 #import './code.js';
