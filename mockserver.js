@@ -4,36 +4,40 @@ const colors = require('colors');
 const join = path.join;
 const Combinatorics = require('js-combinatorics');
 const normalizeHeader = require('header-case-normalizer');
-
+const Monad = require('./monad');
+const importHandler = require('./handlers/importHandler');
+const headerHandler = require('./handlers/headerHandler');
+const evalHandler = require('./handlers/evalHandler');
 /**
  * Returns the status code out of the
  * first line of an HTTP response
  * (ie. HTTP/1.1 200 Ok)
  */
 function parseStatus(header) {
-  return header.split(' ')[1];
+  const regex = /(?<=HTTP\/\d.\d\s{1,1})(\d{3,3})(?=[a-z0-9\s]+)/gi;
+  if (!regex.test(header)) throw new Error('Response code should be valid string');
+
+  const res = header.match(regex);
+  return res.join('');
 }
 
 /**
  * Parses an HTTP header, splitting
  * by colon.
  */
-const parseHeader = function(header) {
+const parseHeader = function (header, context, request) {
   header = header.split(': ');
 
-  return { key: normalizeHeader(header[0]), value: parseValue(header[1]) };
+  return { key: normalizeHeader(header[0]), value: parseValue(header[1], context, request) };
 };
 
-const parseValue = function(value) {
-  if (/^#header/m.test(value)) {
-    return value
-      .replace(/^#header (.*);/m, function(statement, val) {
-        const expression = val.replace(/[${}]/g, '');
-        return eval(expression);
-      })
-      .replace(/\r\n?/g, '\n');
-  }
-  return value;
+const parseValue = function(value, context, request) {
+  return Monad
+    .of(value)
+    .map((value) => importHandler(value, context, request))
+    .map((value) => headerHandler(value, request))
+    .map((value) => evalHandler(value, request))
+    .join();
 };
 
 /**
@@ -56,11 +60,19 @@ const prepareWatchedHeaders = function() {
  * status code, headers and body.
  */
 const parse = function(content, file, request) {
+  const context = path.parse(file).dir + '/';
   const headers = {};
   let body;
   const bodyContent = [];
   content = content.split(/\r?\n/);
-  const status = parseStatus(content[0]);
+  const status = Monad
+    .of(content[0])
+    .map((value) => importHandler(value, context, request))
+    .map((value) => evalHandler(value, context, request))
+    .map(parseStatus)
+    .join();
+
+
   let headerEnd = false;
   delete content[0];
 
@@ -79,23 +91,12 @@ const parse = function(content, file, request) {
     }
   });
 
-  body = bodyContent.join('\n');
 
-  if (/^#import/m.test(body)) {
-    const context = path.parse(file).dir + '/';
-
-    body = body
-      .replace(/^#import (.*);/m, function(includeStatement, file) {
-        const importThisFile = file.replace(/['"]/g, '');
-        const content = fs.readFileSync(path.join(context, importThisFile));
-        if (importThisFile.endsWith('.js')) {
-          return JSON.stringify(eval(content.toString()));
-        } else {
-          return content;
-        }
-      })
-      .replace(/\r\n?/g, '\n');
-  }
+  body = Monad
+    .of(bodyContent.join('\n'))
+    .map((value) => importHandler(value, context, request))
+    .map((value) => evalHandler(value, context, request))
+    .join();
 
   return { status: status, headers: headers, body: body };
 };
@@ -105,6 +106,7 @@ function removeBlanks(array) {
     return i;
   });
 }
+
 
 /**
  * This method will look for a header named Response-Delay. When set it

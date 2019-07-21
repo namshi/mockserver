@@ -2,6 +2,7 @@ const MockReq = require('mock-req');
 const assert = require('assert');
 const mockserver = require('./../mockserver');
 const path = require('path');
+const Monad = require('../monad');
 
 let res;
 let req;
@@ -311,6 +312,13 @@ describe('mockserver', function() {
       assert.equal(res.body, JSON.stringify({ foo: 'bar' }, null, 4));
     });
 
+    it('should be able to handle eval', function() {
+      processRequest('/eval', 'GET');
+
+      assert.equal(res.status, 200);
+      assert.deepEqual(JSON.parse(res.body), { foo: 'bar' });
+    });
+
     it('should be able to handle imports with content around import', function() {
       processRequest('/import?around=true', 'GET');
 
@@ -446,5 +454,70 @@ describe('mockserver', function() {
         });
       });
     });
+    describe('Custom response codes', function() {
+        it('response status codes depends on request case 400 Bad request', function (done) {
+          var req = new MockReq({
+              method: 'POST',
+              url: '/headerimportjs',
+              headers: {},
+          });
+          req.write(JSON.stringify({ baz: '123' }));
+          req.end();
+
+          mockserver(mocksDirectory, verbose)(req, res);
+
+          req.on('end', function () {
+              assert.equal(res.status, '400');
+              done();
+          });
+      });
+      it('response status codes depends on request case 200 OK', function (done) {
+          var req = new MockReq({
+              method: 'POST',
+              url: '/headerimportjs',
+              headers: {},
+          });
+          req.write(JSON.stringify({ foo: '123' }));
+          req.end();
+
+          mockserver(mocksDirectory, verbose)(req, res);
+
+          req.on('end', function () {
+              assert.equal(res.status, '200');
+              done();
+          });
+      });
+    })
   });
+});
+
+describe('Monad methods', function() {
+    let m;
+    function fn(val) {
+        return {
+            ...val,
+            b: 2
+        };
+    }
+    const testData = { a: 1 };
+    const expectData = { a: 1, b: 2 };
+    beforeEach(function() {
+        m = Monad.of(testData);
+    });
+
+    it('Monad have static method `of`', function() {
+        assert.equal(typeof Monad.of, 'function');
+    });
+    it('Monad method `of` should return Object type Monad', function() {
+        assert.equal(m instanceof Monad, true);
+    });
+    it('Monad method `map` should recive value and return Object type Monad', function() {
+        assert.equal(m.map(fn) instanceof Monad, true);
+    });
+    it('Monad method `join` should return value', function () {
+        assert.strictEqual(m.join(), testData);
+    });
+    it('Monad method `chain` should return value', function () {
+        assert.deepEqual(m.chain(fn), expectData);
+    });
 });
