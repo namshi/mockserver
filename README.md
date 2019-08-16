@@ -285,6 +285,13 @@ Dynamic values of headers can be filled with valid JS statements such as:
 X-Subject-Token: #header ${require('uuid/v4')()};
 ```
 
+Because of how the javascript files are evaluated, you can also access the following variables inside the .js file:
+* `request`
+* `context`
+* `value`
+
+Relative `require()` import statements for relative files will not work.
+
 ## Custom response status
 
 You can specify response status (200, 201, 404. etc.) depending on request parameters. To do this, you need to use `#import './code.js';` in first line of your mock file:
