@@ -290,7 +290,17 @@ Because of how the javascript files are evaluated, you can also access the follo
 * `context`
 * `value`
 
-Relative `require()` import statements for relative files will not work.
+Relative `require()` import statements for relative files will not work out-of-the-box, but since `context` contains the path to the directory where your .js file is, you can do the following hack to get them to work.
+
+```js
+/* globals request, context, path */
+
+// actually path is already available via the eval'd scope
+// var path = require('path');
+var fooFunc = require(path.join(context, 'foo.js'));
+
+module.exports = fooFunc(request).bar;
+```
 
 ## Custom response status
 
