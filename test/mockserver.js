@@ -106,6 +106,12 @@ describe('mockserver', function() {
       );
     });
 
+    it('should combine the identical headers names', function() {
+      processRequest('/multiple-headers-same-name/', 'GET');
+      
+      assert.equal(res.headers['Set-Cookie'].length, 3);
+    })
+
     it('should be able to handle status codes different than 200', function() {
       processRequest('/return-204', 'GET');
 

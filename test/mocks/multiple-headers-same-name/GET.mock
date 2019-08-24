@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml; charset=utf-8
+Cache-Control: public, max-age=300
+Set-Cookie: PHPSESSID=abc; path=/
+Set-Cookie: PHPSESSID=def; path=/
+Set-Cookie: PHPSESSID=ghi; path=/
+
+Welcome!
