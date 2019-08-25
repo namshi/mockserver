@@ -55,6 +55,19 @@ const prepareWatchedHeaders = function() {
 };
 
 /**
+ * Combining the identically named headers
+ */
+const addHeader = function(headers, line) {
+  const { key, value } = parseHeader(line);
+
+  if (headers[key]) {
+    headers[key] = [...(Array.isArray(headers[key]) ? headers[key] : [headers[key]]), value];
+  } else {
+    headers[key] = value;
+  }
+}
+
+/**
  * Parser the content of a mockfile
  * returning an HTTP-ish object with
  * status code, headers and body.
@@ -85,8 +98,7 @@ const parse = function(content, file, request) {
         headerEnd = true;
         break;
       default:
-        const header = parseHeader(line);
-        headers[header.key] = header.value;
+        addHeader(headers, line);
         break;
     }
   });
