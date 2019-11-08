@@ -108,7 +108,7 @@ describe('mockserver', function() {
 
     it('should combine the identical headers names', function() {
       processRequest('/multiple-headers-same-name/', 'GET');
-      
+
       assert.equal(res.headers['Set-Cookie'].length, 3);
     })
 
@@ -431,6 +431,15 @@ describe('mockserver', function() {
         assert.equal(res.status, 404);
       });
     });
+
+    describe("wildcard params", function() {
+      it("matches a file with wildcards as query params", function() {
+        processRequest("/wildcard-params?foo=bar&buz=baz", "GET");
+
+        assert.equal(res.status, 200);
+      });
+    });
+
     describe('.getResponseDelay', function() {
       it('should return a value greater than zero when valid', function() {
         const ownValueHeaders = [
