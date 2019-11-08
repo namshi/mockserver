@@ -247,6 +247,10 @@ function getDirectoriesRecursive(srcpath) {
  * GET--query=string&hello=hella.mock
  */
 function getBodyOrQueryString(body, query) {
+  if (body && query) {
+    return '_'+ body + '--' + query;
+  }
+
   if (query) {
     return '--' + query;
   }
@@ -288,12 +292,12 @@ function getMockedContent(path, prefix, body, query) {
   let content = handleMatch(path, exactName, fs.existsSync);
 
   // Compare params without regard to order
-  if (!content && query && !body) {
-    content = testForQuery(path, prefix, query, false);
+  if (!content && query) {
+    content = testForQuery(path, prefix, body, query, false);
 
     // Compare params without regard to order and allow wildcards
     if (!content) {
-      content = testForQuery(path, prefix, query, true);
+      content = testForQuery(path, prefix, body, query, true);
     }
   }
 
@@ -306,11 +310,17 @@ function getMockedContent(path, prefix, body, query) {
   return content;
 }
 
-function testForQuery(path, prefix, query, allowWildcards) {
+function testForQuery(path, prefix, body, query, allowWildcards) {
   // Find all files in the directory
   return fs
     .readdirSync(join(mockserver.directory, path))
-    .filter(possibleFile => possibleFile.startsWith(prefix) && possibleFile.endsWith('.mock'))
+    .filter(possibleFile => {
+      if (body) {
+        return possibleFile.startsWith(prefix + '_' + body) && possibleFile.endsWith('.mock');
+      }
+
+      return possibleFile.startsWith(prefix) && possibleFile.endsWith('.mock');
+    })
     .filter(possibleFile => possibleFile.match(/--[\s\S]*__/))
     .reduce((prev, possibleFile) => {
       if (prev) {

@@ -420,29 +420,75 @@ describe('mockserver', function() {
       });
     });
 
-    describe("query string parameters", function() {
+    describe('query string parameters', function() {
       it('should be able to handle GET parameters', function() {
         processRequest('/test?a=b', 'GET');
 
         assert.equal(res.status, 200);
       });
 
-      it("should handle a file with wildcards as query params", function() {
-        processRequest("/wildcard-params?foo=bar&buz=baz", "GET");
+      it('should handle a file with wildcards as query params', function() {
+        processRequest('/wildcard-params?foo=bar&buz=baz', 'GET');
 
         assert.equal(res.status, 200);
       });
 
-      it("should handle a request regardless of the order of the params in the query string", function() {
-        processRequest("/wildcard-params?buz=baz&foo=bar", "GET");
+      it('should handle a request regardless of the order of the params in the query string', function() {
+        processRequest('/wildcard-params?buz=baz&foo=bar', 'GET');
 
         assert.equal(res.status, 200);
+      });
+
+      it('should not handle requests with extra params in the query string', function() {
+        processRequest('/wildcard-params?buz=baz&foo=bar&biz=bak', 'GET');
+
+        assert.equal(res.status, 404);
       });
 
       it('should default to GET.mock if no matching parameter file is found', function() {
         processRequest('/test?a=c', 'GET');
 
         assert.equal(res.status, 200);
+      });
+
+      it('should be able to include POST bodies and query params', function(done) {
+        const req = new MockReq({
+          method: 'POST',
+          url: '/return-200?a=b',
+          headers: {
+            Accept: 'text/plain'
+          }
+        });
+        req.write('Hello=123');
+        req.end();
+
+        mockserver(mocksDirectory, verbose)(req, res);
+
+        req.on('end', function() {
+          assert.equal(res.body, 'Hella');
+          assert.equal(res.status, 200);
+          done();
+        });
+      });
+
+      it('should be able to include POST bodies and query params with wildcards', function(done) {
+        const req = new MockReq({
+          method: 'POST',
+          url: '/return-200?c=d',
+          headers: {
+            Accept: 'text/plain'
+          }
+        });
+        req.write('Hello=456');
+        req.end();
+
+        mockserver(mocksDirectory, verbose)(req, res);
+
+        req.on('end', function() {
+          assert.equal(res.body, 'Hello!!!');
+          assert.equal(res.status, 200);
+          done();
+        });
       });
     });
 
