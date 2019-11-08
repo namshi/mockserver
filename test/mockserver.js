@@ -433,6 +433,13 @@ describe('mockserver', function() {
         assert.equal(res.status, 200);
       });
 
+      it('should prefer exact matches over wildcard matches', function () {
+        processRequest('/wildcard-params?foo=bar&buz=bak', 'GET');
+
+        assert.equal(res.status, 200);
+        assert.equal(res.body, 'exact match');
+      })
+
       it('should handle a request regardless of the order of the params in the query string', function() {
         processRequest('/wildcard-params?buz=baz&foo=bar', 'GET');
 
