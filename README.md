@@ -169,7 +169,7 @@ Response-Delay: 5000
 
 The delay value is expected in milliseconds, if not set for a given file there will be no delay.
 
-## Query string parameters and POST body
+## Query string parameters
 
 In order to support query string parameters in the mocked files, replace all occurrences of `?` with `--`, then
 append the entire string to the end of the file.
@@ -187,6 +187,29 @@ test/GET--a=b&c=d--.mock
 ```
 
 (This has been introduced to overcome issues in file naming on windows)
+
+Query parameters can be passed in any order. For example,
+```
+GET /hello?a=b&c=d
+GET /hello?c=d&a=b
+```
+both match the file `hello/GET--a=b&c=d`.
+
+You can specify  a wildcard for a query param by including `__` in place of a value in the file name.
+```
+GET /hello?a=b&c=d
+
+matches
+hello/GET--a=b&c=__
+```
+
+In the event that there are multiple files that match the provided query params pattern, mockserver selects files in the following order:
+* Files with params in the same order (no wildcards)
+* Files with params in any order (no wildcards)
+* Files with params in any order and wild cards
+
+
+## Query string parameters and POST body
 
 To combine custom headers and query parameters, simply add the headers _then_ add the parameters:
 
@@ -295,7 +318,7 @@ Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: *
 
 {
- "Random": "Content" 
+ "Random": "Content"
 }
 ```
 

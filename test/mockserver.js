@@ -143,18 +143,6 @@ describe('mockserver', function() {
       assert.equal(res.body, 'multi-level url');
     });
 
-    it('should be able to handle GET parameters', function() {
-      processRequest('/test?a=b', 'GET');
-
-      assert.equal(res.status, 200);
-    });
-
-    it('should default to GET.mock if no matching parameter file is found', function() {
-      processRequest('/test?a=c', 'GET');
-
-      assert.equal(res.status, 200);
-    });
-
     it('should be able track custom headers', function() {
       mockserver.headers = ['authorization'];
 
@@ -432,9 +420,27 @@ describe('mockserver', function() {
       });
     });
 
-    describe("wildcard params", function() {
-      it("matches a file with wildcards as query params", function() {
+    describe("query string parameters", function() {
+      it('should be able to handle GET parameters', function() {
+        processRequest('/test?a=b', 'GET');
+
+        assert.equal(res.status, 200);
+      });
+
+      it("should handle a file with wildcards as query params", function() {
         processRequest("/wildcard-params?foo=bar&buz=baz", "GET");
+
+        assert.equal(res.status, 200);
+      });
+
+      it("should handle a request regardless of the order of the params in the query string", function() {
+        processRequest("/wildcard-params?buz=baz&foo=bar", "GET");
+
+        assert.equal(res.status, 200);
+      });
+
+      it('should default to GET.mock if no matching parameter file is found', function() {
+        processRequest('/test?a=c', 'GET');
 
         assert.equal(res.status, 200);
       });
