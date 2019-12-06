@@ -8,7 +8,11 @@ let res;
 let req;
 const mocksDirectory = path.join('.', 'test', 'mocks');
 
+<<<<<<< HEAD
 const verbose = process.env.DEBUG === 'true' || false;
+=======
+var verbose = process.env.DEBUG === 'true' || true;
+>>>>>>> 85b679f6679ec34db56297f217e5859d3ec1b98d
 
 /**
  * Processes request
@@ -318,8 +322,57 @@ describe('mockserver', function() {
       assert.equal(res.body, JSON.stringify({ foo: 'bar' }, null, 4));
     });
 
+<<<<<<< HEAD
     it('should be able to handle eval', function() {
       processRequest('/eval', 'GET');
+=======
+        it('should be able to include POST json body in separate file', function(done) {
+          var jsonBody = {user: {username: 'theUser', password: '123456'}};
+          var req = new MockReq({
+            method: 'POST',
+            url: '/request-json',
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+          req.write(jsonBody);
+          req.end();
+
+          mockserver(mocksDirectory, verbose)(req, res);
+
+          req.on('end', function() {
+            assert.deepEqual(JSON.parse(res.body), {token: 'longJWT'});
+            assert.equal(res.status, 200);
+            done();
+          });
+        });
+
+        it('should default to POST.mock if json body not found in any files', function(done) {
+          var jsonBody = {user: {username: 'notFoundUser', password: '123456'}};
+          var req = new MockReq({
+            method: 'POST',
+            url: '/request-json',
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+          req.write(jsonBody);
+          req.end();
+
+          mockserver(mocksDirectory, verbose)(req, res);
+
+          req.on('end', function() {
+            assert.deepEqual(JSON.parse(res.body), {error: 'User not found'});
+            assert.equal(res.status, 404);
+            done();
+          });
+        });
+
+        it('Should return 404 when no default .mock files are found', function() {
+            mockserver.headers = ['authorization'];
+            req.headers['authorization'] = 12;
+            processRequest('/return-200?a=c', 'GET');
+>>>>>>> 85b679f6679ec34db56297f217e5859d3ec1b98d
 
       assert.equal(res.status, 200);
       assert.deepEqual(JSON.parse(res.body), { foo: 'bar' });
@@ -492,6 +545,7 @@ describe('mockserver', function() {
               assert.equal(res.status, '200');
               done();
           });
+<<<<<<< HEAD
       });
     })
   });
@@ -525,5 +579,9 @@ describe('Monad methods', function() {
     });
     it('Monad method `chain` should return value', function () {
         assert.deepEqual(m.chain(fn), expectData);
+=======
+
+        });
+>>>>>>> 85b679f6679ec34db56297f217e5859d3ec1b98d
     });
 });

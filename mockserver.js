@@ -235,8 +235,13 @@ function getDirectoriesRecursive(srcpath) {
 
 /**
  * Returns the body or query string to be used in
+<<<<<<< HEAD
  * the mock name.
  *
+=======
+ * the mock fileName.
+ * 
+>>>>>>> 85b679f6679ec34db56297f217e5859d3ec1b98d
  * In any case we will prepend the value with a double
  * dash so that the mock files will look like:
  *
@@ -282,6 +287,7 @@ function getBody(req, callback) {
   });
 }
 
+<<<<<<< HEAD
 function getMockedContent(path, prefix, body, query) {
   const mockName = prefix + (getBodyOrQueryString(body, query) || '') + '.mock';
   const mockFile = join(mockserver.directory, path, mockName);
@@ -293,6 +299,64 @@ function getMockedContent(path, prefix, body, query) {
       console.log(
         'Reading from ' + mockFile.yellow + ' file: ' + 'Matched'.green
       );
+=======
+function isJsonString(str) {
+  if (typeof(str) !== 'string') {
+    return false;
+  }
+  try {
+    JSON.parse(str);
+  } catch (err) {
+    return false;
+  }
+  return true;
+}
+
+function getMatchingJsonFile(files, fullPath, jsonBody) {
+  for (var file of files) {
+    if (file.endsWith('.json')) {
+      var data = fs.readFileSync(join(fullPath, file), {encoding: 'utf8'});
+      try {
+        if (jsonBody === JSON.stringify(JSON.parse(data))) {
+          return file;
+        }
+      } catch (err) {
+        if (mockserver.verbose) {
+          console.log('Tried to match json body with ' + file.yellow + '. File has invalid JSON'.red);
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function getMockedContent(path, prefix, body, query) {
+  var fullPath = join(mockserver.directory, path);
+  var mockName =  prefix + (getBodyOrQueryString(body, query) || '') + '.mock';
+  var prefixFallback = prefix + '.mock';
+
+  try {
+    var files = fs.readdirSync(fullPath);
+
+    // 1st try to match on body or query within file name
+    if (files.indexOf(mockName) !== -1) {
+      if (mockserver.verbose) {
+        console.log('Reading from '+ mockName.yellow +' file: ' + 'Matched'.green);
+      }
+      return fs.readFileSync(join(fullPath, mockName), {encoding: 'utf8'});
+    }
+
+    // 2nd (for json body only) try to match on json body within file contents
+    if (body && isJsonString(body)) {
+      var matchingJsonFile = getMatchingJsonFile(files, fullPath, body);
+      if (matchingJsonFile) {
+        var mockNameFromJson = prefix + '@' + matchingJsonFile + '.mock';
+        if (mockserver.verbose) {
+          console.log('Reading from '+ mockNameFromJson.yellow +' file: ' + 'Matched'.green);
+        }
+        return fs.readFileSync(join(fullPath, mockNameFromJson), {encoding: 'utf8'})
+      }
+>>>>>>> 85b679f6679ec34db56297f217e5859d3ec1b98d
     }
   } catch (err) {
     if (mockserver.verbose) {
@@ -303,7 +367,19 @@ function getMockedContent(path, prefix, body, query) {
     content = (body || query) && getMockedContent(path, prefix);
   }
 
+<<<<<<< HEAD
   return content;
+=======
+    // 3rd try fallback with only prefix
+    if (files.indexOf(prefixFallback) !== -1) {
+      if (mockserver.verbose) {
+        console.log('Reading from '+ mockName.yellow +' file: ' + 'Not matched'.red);
+      }
+      return fs.readFileSync(join(fullPath, prefixFallback), {encoding: 'utf8'});
+    }
+  } catch (err) {}
+  return null;
+>>>>>>> 85b679f6679ec34db56297f217e5859d3ec1b98d
 }
 
 function getContentFromPermutations(path, method, body, query, permutations) {
