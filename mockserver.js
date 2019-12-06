@@ -25,15 +25,14 @@ function parseStatus(header) {
  * Parses an HTTP header, splitting
  * by colon.
  */
-const parseHeader = function (header, context, request) {
+const parseHeader = function(header, context, request) {
   header = header.split(': ');
 
   return { key: normalizeHeader(header[0]), value: parseValue(header[1], context, request) };
 };
 
 const parseValue = function(value, context, request) {
-  return Monad
-    .of(value)
+  return Monad.of(value)
     .map((value) => importHandler(value, context, request))
     .map((value) => headerHandler(value, request))
     .map((value) => evalHandler(value, request))
@@ -45,8 +44,7 @@ const parseValue = function(value, context, request) {
  * Priority exports over ENV definition.
  */
 const prepareWatchedHeaders = function() {
-  const exportHeaders =
-    module.exports.headers && module.exports.headers.toString();
+  const exportHeaders = module.exports.headers && module.exports.headers.toString();
   const headers = (exportHeaders || process.env.MOCK_HEADERS || '').split(',');
 
   return headers.filter(function(item, pos, self) {
@@ -65,7 +63,7 @@ const addHeader = function(headers, line) {
   } else {
     headers[key] = value;
   }
-}
+};
 
 /**
  * Parser the content of a mockfile
@@ -78,13 +76,11 @@ const parse = function(content, file, request) {
   let body;
   const bodyContent = [];
   content = content.split(/\r?\n/);
-  const status = Monad
-    .of(content[0])
+  const status = Monad.of(content[0])
     .map((value) => importHandler(value, context, request))
     .map((value) => evalHandler(value, context, request))
     .map(parseStatus)
     .join();
-
 
   let headerEnd = false;
   delete content[0];
@@ -103,9 +99,7 @@ const parse = function(content, file, request) {
     }
   });
 
-
-  body = Monad
-    .of(bodyContent.join('\n'))
+  body = Monad.of(bodyContent.join('\n'))
     .map((value) => importHandler(value, context, request))
     .map((value) => evalHandler(value, context, request))
     .join();
@@ -118,7 +112,6 @@ function removeBlanks(array) {
     return i;
   });
 }
-
 
 /**
  * This method will look for a header named Response-Delay. When set it
@@ -157,7 +150,7 @@ function getWildcardPath(dir) {
   }
 
   const res = getDirectoriesRecursive(mockserver.directory)
-    .filter(dir => {
+    .filter((dir) => {
       const directories = dir.split(path.sep);
       return directories.includes('__');
     })
@@ -170,7 +163,7 @@ function getWildcardPath(dir) {
       // Order from longest file path to shortest.
       return aLength > bLength ? -1 : 1;
     })
-    .map(dir => {
+    .map((dir) => {
       const steps = dir.split(path.sep);
       const baseDir = mockserver.directory.split(path.sep);
       steps.splice(0, baseDir.length);
@@ -211,8 +204,7 @@ function matchWildcardPath(steps, dirSteps) {
 
 function flattenDeep(directories) {
   return directories.reduce(
-    (acc, val) =>
-      Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val),
+    (acc, val) => (Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val)),
     []
   );
 }
@@ -220,14 +212,12 @@ function flattenDeep(directories) {
 function getDirectories(srcpath) {
   return fs
     .readdirSync(srcpath)
-    .map(file => path.join(srcpath, file))
-    .filter(path => fs.statSync(path).isDirectory());
+    .map((file) => path.join(srcpath, file))
+    .filter((path) => fs.statSync(path).isDirectory());
 }
 
 function getDirectoriesRecursive(srcpath) {
-  const nestedDirectories = getDirectories(srcpath).map(
-    getDirectoriesRecursive
-  );
+  const nestedDirectories = getDirectories(srcpath).map(getDirectoriesRecursive);
   const directories = flattenDeep(nestedDirectories);
   directories.push(srcpath);
   return directories;
@@ -235,13 +225,8 @@ function getDirectoriesRecursive(srcpath) {
 
 /**
  * Returns the body or query string to be used in
-<<<<<<< HEAD
- * the mock name.
- *
-=======
  * the mock fileName.
- * 
->>>>>>> 85b679f6679ec34db56297f217e5859d3ec1b98d
+ *
  * In any case we will prepend the value with a double
  * dash so that the mock files will look like:
  *
@@ -287,21 +272,8 @@ function getBody(req, callback) {
   });
 }
 
-<<<<<<< HEAD
-function getMockedContent(path, prefix, body, query) {
-  const mockName = prefix + (getBodyOrQueryString(body, query) || '') + '.mock';
-  const mockFile = join(mockserver.directory, path, mockName);
-  let content;
-
-  try {
-    content = fs.readFileSync(mockFile, { encoding: 'utf8' });
-    if (mockserver.verbose) {
-      console.log(
-        'Reading from ' + mockFile.yellow + ' file: ' + 'Matched'.green
-      );
-=======
 function isJsonString(str) {
-  if (typeof(str) !== 'string') {
+  if (typeof str !== 'string') {
     return false;
   }
   try {
@@ -315,14 +287,17 @@ function isJsonString(str) {
 function getMatchingJsonFile(files, fullPath, jsonBody) {
   for (var file of files) {
     if (file.endsWith('.json')) {
-      var data = fs.readFileSync(join(fullPath, file), {encoding: 'utf8'});
+      var data = fs.readFileSync(join(fullPath, file), { encoding: 'utf8' });
+
       try {
         if (jsonBody === JSON.stringify(JSON.parse(data))) {
           return file;
         }
       } catch (err) {
         if (mockserver.verbose) {
-          console.log('Tried to match json body with ' + file.yellow + '. File has invalid JSON'.red);
+          console.log(
+            'Tried to match json body with ' + file.yellow + '. File has invalid JSON'.red
+          );
         }
       }
     }
@@ -332,7 +307,7 @@ function getMatchingJsonFile(files, fullPath, jsonBody) {
 
 function getMockedContent(path, prefix, body, query) {
   var fullPath = join(mockserver.directory, path);
-  var mockName =  prefix + (getBodyOrQueryString(body, query) || '') + '.mock';
+  var mockName = prefix + (getBodyOrQueryString(body, query) || '') + '.mock';
   var prefixFallback = prefix + '.mock';
 
   try {
@@ -341,45 +316,40 @@ function getMockedContent(path, prefix, body, query) {
     // 1st try to match on body or query within file name
     if (files.indexOf(mockName) !== -1) {
       if (mockserver.verbose) {
-        console.log('Reading from '+ mockName.yellow +' file: ' + 'Matched'.green);
+        console.log('Reading from ' + mockName.yellow + ' file: ' + 'Matched'.green);
       }
-      return fs.readFileSync(join(fullPath, mockName), {encoding: 'utf8'});
+      return fs.readFileSync(join(fullPath, mockName), { encoding: 'utf8' });
     }
 
     // 2nd (for json body only) try to match on json body within file contents
     if (body && isJsonString(body)) {
       var matchingJsonFile = getMatchingJsonFile(files, fullPath, body);
+
       if (matchingJsonFile) {
-        var mockNameFromJson = prefix + '@' + matchingJsonFile + '.mock';
+        var fileWithoutExtension = matchingJsonFile.replace('.json', '');
+        var mockNameFromJson = prefix + '@' + fileWithoutExtension + '.mock';
         if (mockserver.verbose) {
-          console.log('Reading from '+ mockNameFromJson.yellow +' file: ' + 'Matched'.green);
+          console.log('Reading from ' + mockNameFromJson.yellow + ' file: ' + 'Matched'.green);
         }
-        return fs.readFileSync(join(fullPath, mockNameFromJson), {encoding: 'utf8'})
+        return fs.readFileSync(join(fullPath, mockNameFromJson), { encoding: 'utf8' });
       }
->>>>>>> 85b679f6679ec34db56297f217e5859d3ec1b98d
+    }
+
+    // 3rd try fallback with only prefix
+    if (files.indexOf(prefixFallback) !== -1) {
+      if (mockserver.verbose) {
+        console.log('Reading from ' + mockName.yellow + ' file: ' + 'Not matched'.red);
+      }
+      return fs.readFileSync(join(fullPath, prefixFallback), { encoding: 'utf8' });
     }
   } catch (err) {
     if (mockserver.verbose) {
-      console.log(
-        'Reading from ' + mockFile.yellow + ' file: ' + 'Not matched'.red
-      );
+      console.log('Reading from ' + mockName.yellow + ' file: ' + 'Not matched'.red);
     }
     content = (body || query) && getMockedContent(path, prefix);
   }
 
-<<<<<<< HEAD
-  return content;
-=======
-    // 3rd try fallback with only prefix
-    if (files.indexOf(prefixFallback) !== -1) {
-      if (mockserver.verbose) {
-        console.log('Reading from '+ mockName.yellow +' file: ' + 'Not matched'.red);
-      }
-      return fs.readFileSync(join(fullPath, prefixFallback), {encoding: 'utf8'});
-    }
-  } catch (err) {}
   return null;
->>>>>>> 85b679f6679ec34db56297f217e5859d3ec1b98d
 }
 
 function getContentFromPermutations(path, method, body, query, permutations) {
@@ -409,8 +379,7 @@ const mockserver = {
       let path = url;
 
       const queryIndex = url.indexOf('?'),
-        query =
-          queryIndex >= 0 ? url.substring(queryIndex).replace(/\?/g, '') : '',
+        query = queryIndex >= 0 ? url.substring(queryIndex).replace(/\?/g, '') : '',
         method = req.method.toUpperCase(),
         headers = [];
 
@@ -422,9 +391,7 @@ const mockserver = {
         mockserver.headers.forEach(function(header) {
           header = header.toLowerCase();
           if (req.headers[header]) {
-            headers.push(
-              '_' + normalizeHeader(header) + '=' + req.headers[header]
-            );
+            headers.push('_' + normalizeHeader(header) + '=' + req.headers[header]);
           }
         });
       }
@@ -443,30 +410,14 @@ const mockserver = {
         permutations.push([]);
       }
 
-      matched = getContentFromPermutations(
-        path,
-        method,
-        body,
-        query,
-        permutations.slice(0)
-      );
+      matched = getContentFromPermutations(path, method, body, query, permutations.slice(0));
 
       if (!matched.content && (path = getWildcardPath(path))) {
-        matched = getContentFromPermutations(
-          path,
-          method,
-          body,
-          query,
-          permutations.slice(0)
-        );
+        matched = getContentFromPermutations(path, method, body, query, permutations.slice(0));
       }
 
       if (matched.content) {
-        const mock = parse(
-          matched.content,
-          join(mockserver.directory, path, matched.prefix),
-          req
-        );
+        const mock = parse(matched.content, join(mockserver.directory, path, matched.prefix), req);
         const delay = getResponseDelay(mock.headers);
         Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, delay);
         res.writeHead(mock.status, mock.headers);
@@ -476,7 +427,7 @@ const mockserver = {
         res.end('Not Mocked');
       }
     });
-  },
+  }
 };
 
 module.exports = function(directory, silent) {
