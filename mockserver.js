@@ -250,11 +250,24 @@ function getBodyOrQueryString(body, query) {
   if (query) {
     return '--' + query;
   }
-
+  
   if (body && body !== '') {
+      try{
+            let bs ='';
+            let obj = eval('(' + body + ')');
+            Object.keys(obj).forEach(x=>{
+                bs += `${bs?'&':''}${x}=${obj[x]}`
+            });
+            // console.log('[Body Parsed]', body, bs);
+            return '--' + bs;
+      }
+      catch (error) {
+          console.log('[Body parse error]', error);
+      }
+
     return '--' + body;
   }
-
+  
   return body;
 }
 
