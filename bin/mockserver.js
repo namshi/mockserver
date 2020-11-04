@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
-var http        = require('http');
 var mockserver  = require('./../mockserver');
 var argv        = require('yargs').argv;
-var colors      = require('colors')
+var colors      = require('colors');
 var info        = require('./../package.json');
 var mocks       = argv.m || argv.mocks;
 var port        = argv.p || argv.port;
+var key         = argv.k || argv.key;
+var cert        = argv.c || argv.cert;
 var verbose     = !(argv.q || argv.quiet);
 
 if (!mocks || !port) {
@@ -17,20 +18,34 @@ if (!mocks || !port) {
     "  mockserver [-q] -p PORT -m PATH",
     "",
     "Options:",
-    "  -p, --port=PORT    - Port to listen on",
-    "  -m, --mocks=PATH   - Path to mock files",
-    "  -q, --quiet        - Do not output anything",
+    "  -k, --key=./ssl.key      - Path to SSL key",
+    "  -c, --cert=./ssl.cert    - Path to SSL cert",
+    "  -p, --port=PORT          - Port to listen on",
+    "  -m, --mocks=PATH         - Path to mock files",
+    "  -q, --quiet              - Do not output anything",
     "",
     "Example:",
     "  mockserver -p 8080 -m './mocks'"
   ].join("\n"));
 } else {
-  http.createServer(mockserver(mocks, verbose)).listen(port);
+  var isSSL = key && cert;
+  if (isSSL) {
+    var https = require('https');
+    var fs = require('fs');
+    var options = {
+      key: fs.readFileSync(key),
+      cert: fs.readFileSync(cert)
+    };
+    https.createServer(options, mockserver(mocks, verbose)).listen(port);
+  } else {
+    var http = require('http');
+    http.createServer(mockserver(mocks, verbose)).listen(port);
+  }
 
   if (verbose) {
     console.log('Mockserver serving mocks {'
       + 'verbose'.yellow + ':' + (verbose && 'true'.green || 'false')
       + '} under "' + mocks.green  + '" at '
-      + 'http://localhost:'.green + port.toString().green);
+      + (isSSL ? 'https' : 'http').green + '://localhost:'.green + port.toString().green);
   }
 }
