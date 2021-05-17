@@ -1,3 +1,11 @@
+# Deprecation notice
+
+This project is not under active maintenance (see https://github.com/namshi/mockserver/issues/82)
+
+Development is continued at https://github.com/fauxauldrich/camouflage
+
+For details on how to port your existing projects please visit [Camouflage Documentation](https://fauxauldrich.github.io/camouflage), or post your questions in Camouflage's [discussion](https://github.com/fauxauldrich/camouflage/discussions/22)
+
 # mockserver
 
 [![Build Status](https://travis-ci.org/namshi/mockserver.svg?branch=master)](https://travis-ci.org/namshi/mockserver)
