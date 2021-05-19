@@ -2,13 +2,12 @@ const MockReq = require('mock-req');
 const assert = require('assert');
 const mockserver = require('./../mockserver');
 const path = require('path');
-const Monad = require('../monad');
 
 let res;
 let req;
 const mocksDirectory = path.join('.', 'test', 'mocks');
 
-const verbose = process.env.DEBUG === 'true' || false;
+var verbose = process.env.DEBUG === 'true' || true;
 
 /**
  * Processes request
@@ -74,7 +73,7 @@ describe('mockserver', function() {
 
   describe('mockserver()', function() {
     it('should return a valid response', function() {
-      processRequest('/test', 'GET');
+      processRequest('/response-default', 'GET');
 
       assert.equal(res.body, 'Welcome!');
       assert.equal(res.status, 200);
@@ -89,7 +88,7 @@ describe('mockserver', function() {
     });
 
     it('should be able to handle trailing slashes without changing the name of the mockfile', function() {
-      processRequest('/test/', 'GET');
+      processRequest('/response-default/', 'GET');
 
       assert.equal(res.status, 200);
       assert.equal(res.body, 'Welcome!');
@@ -138,19 +137,19 @@ describe('mockserver', function() {
     });
 
     it('should be able to map multi-level urls', function() {
-      processRequest('/test1/test2', 'GET');
+      processRequest('/multi-level-url/multi-level-url-2', 'GET');
 
       assert.equal(res.body, 'multi-level url');
     });
 
     it('should be able to handle GET parameters', function() {
-      processRequest('/test?a=b', 'GET');
+      processRequest('/query-params?a=b', 'GET');
 
       assert.equal(res.status, 200);
     });
 
     it('should default to GET.mock if no matching parameter file is found', function() {
-      processRequest('/test?a=c', 'GET');
+      processRequest('/query-params?a=c', 'GET');
 
       assert.equal(res.status, 200);
     });
@@ -318,11 +317,52 @@ describe('mockserver', function() {
       assert.equal(res.body, JSON.stringify({ foo: 'bar' }, null, 4));
     });
 
-    it('should be able to handle eval', function() {
-      processRequest('/eval', 'GET');
+    it('should be able to include POST json body in separate file', function(done) {
+      var jsonBody = {user: {username: 'theUser', password: '123456'}};
+      var req = new MockReq({
+        method: 'POST',
+        url: '/request-json',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      req.write(jsonBody);
+      req.end();
 
-      assert.equal(res.status, 200);
-      assert.deepEqual(JSON.parse(res.body), { foo: 'bar' });
+      mockserver(mocksDirectory, verbose)(req, res);
+
+      req.on('end', function() {
+        assert.deepEqual(JSON.parse(res.body), {token: 'longJWT'});
+        assert.equal(res.status, 200);
+        done();
+      });
+    });
+
+    it('should default to POST.mock if json body not found in any files', function(done) {
+      var jsonBody = {user: {username: 'notFoundUser', password: '123456'}};
+      var req = new MockReq({
+        method: 'POST',
+        url: '/request-json',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      req.write(jsonBody);
+      req.end();
+
+      mockserver(mocksDirectory, verbose)(req, res);
+
+      req.on('end', function() {
+        assert.deepEqual(JSON.parse(res.body), {error: 'User not found'});
+        assert.equal(res.status, 404);
+        done();
+      });
+    });
+
+    it('Should return 404 when no default .mock files are found', function() {
+        mockserver.headers = ['authorization'];
+        req.headers['authorization'] = 12;
+        processRequest('/return-200?a=c', 'GET');
     });
 
     it('should be able to handle imports with content around import', function() {
@@ -431,6 +471,7 @@ describe('mockserver', function() {
         assert.equal(res.status, 404);
       });
     });
+    
     describe('.getResponseDelay', function() {
       it('should return a value greater than zero when valid', function() {
         const ownValueHeaders = [
@@ -492,38 +533,8 @@ describe('mockserver', function() {
               assert.equal(res.status, '200');
               done();
           });
-      });
-    })
+
+        });
+    });
   });
-});
-
-describe('Monad methods', function() {
-    let m;
-    function fn(val) {
-        return {
-            ...val,
-            b: 2
-        };
-    }
-    const testData = { a: 1 };
-    const expectData = { a: 1, b: 2 };
-    beforeEach(function() {
-        m = Monad.of(testData);
-    });
-
-    it('Monad have static method `of`', function() {
-        assert.equal(typeof Monad.of, 'function');
-    });
-    it('Monad method `of` should return Object type Monad', function() {
-        assert.equal(m instanceof Monad, true);
-    });
-    it('Monad method `map` should recive value and return Object type Monad', function() {
-        assert.equal(m.map(fn) instanceof Monad, true);
-    });
-    it('Monad method `join` should return value', function () {
-        assert.strictEqual(m.join(), testData);
-    });
-    it('Monad method `chain` should return value', function () {
-        assert.deepEqual(m.chain(fn), expectData);
-    });
 });

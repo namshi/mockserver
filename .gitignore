@@ -3,3 +3,4 @@ node_modules
 test.js
 .nyc_output
 *.code-workspace
+.vscode/

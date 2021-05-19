@@ -213,6 +213,8 @@ In the same way, if your POST body is a json like `{"json": "yesPlease"}`,
 mockserver will look for a file called `POST--{"json": "yesPlease"}.mock`.
 _Warning! This feature is_ **NOT compatible with Windows**_. This is because Windows doesn't accept curly brackets as filenames._
 
+To overcome this limitation or to keep the file names tidy, you can put the body in [a json file](#body-in-json-file).
+
 If no parametrized mock file is found, mockserver will default to the
 nearest headers based .mock file
 
@@ -224,6 +226,24 @@ Authorization: 12345
 ```
 
 if there's no `hello/GET_Authorization=12345--a=b.mock`, we'll default to `hello/GET_Authorization=12345.mock` or to `hello/GET.mock`
+
+## Body in json file
+
+To support Windows and tidier file naming, the expected body of the request can be saved in a separate `.json` file. If the request contains a body in json format, mockserver will look for that body in json files in the same `$REQUEST-PATH` directory.
+
+For example, if a POST body is `{"json": "yesPlease"}`, and a file in the path called `payload.json` has the same content (order is important, but spacing between keys/values is not), mockserver will look for a file called `POST@payload.json.mock`.
+
+The general naming convention is:
+
+```
+$REQUEST-PATH/$HTTP-METHOD@$JSON-FILENAME.mock
+```
+
+The precedence for matching requests containing a json body is:
+
+1) Contained within mock file name
+2) Contained within .json file
+3) No match - nearest headers based .mock file
 
 ## Wildcard slugs
 
