@@ -7,6 +7,7 @@ const Monad = require('./monad');
 const importHandler = require('./handlers/importHandler');
 const headerHandler = require('./handlers/headerHandler');
 const evalHandler = require('./handlers/evalHandler');
+let redirectResponse = undefined;
 /**
  * Returns the status code out of the
  * first line of an HTTP response
@@ -330,6 +331,12 @@ const mockserver = {
 	},
 	'handle': function (req, res) {
 		getBody(req, function (body) {
+			if (redirectResponse) {
+				res
+					.writeHead(redirectResponse.statusCode, redirectResponse.statusMessage, redirectResponse.headers)
+					.end(body);
+			}
+
 			req.body = body;
 			const url = req.url;
 			let path = url;
@@ -413,3 +420,4 @@ module.exports = function (directory, silent) {
 
 module.exports.headers = null;
 module.exports.getResponseDelay = getResponseDelay;
+module.exports.redirectResponse = redirectResponse;
