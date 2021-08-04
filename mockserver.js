@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const colors = require('colors');
 const join = path.join;
 const Combinatorics = require('js-combinatorics');
 const normalizeHeader = require('header-case-normalizer');
@@ -8,6 +9,7 @@ const importHandler = require('./handlers/importHandler');
 const headerHandler = require('./handlers/headerHandler');
 const evalHandler = require('./handlers/evalHandler');
 let redirectResponse = undefined;
+
 /**
  * Returns the status code out of the
  * first line of an HTTP response
@@ -338,13 +340,13 @@ const mockserver = {
 			}
 
 			req.body = body;
-			const url = req.url;
+			const url = redirectResponse ? "/errors?status=" + redirectResponse.statusCode.toString() : req.url;
 			let path = url;
 
 			const queryIndex = url.indexOf('?'),
 				query =
 					queryIndex >= 0 ? url.substring(queryIndex).replace(/\?/g, '') : '',
-				method = req.method.toUpperCase(),
+				method = redirectResponse ? "GET" : req.method.toUpperCase(),
 				headers = [];
 
 			if (queryIndex > 0) {
@@ -412,6 +414,10 @@ const mockserver = {
 	}
 };
 
+const setRedirectResponse = function (response) {
+	redirectResponse = response;
+};
+
 module.exports = function (directory, silent) {
 	mockserver.init(directory, silent);
 
@@ -420,4 +426,4 @@ module.exports = function (directory, silent) {
 
 module.exports.headers = null;
 module.exports.getResponseDelay = getResponseDelay;
-module.exports.redirectResponse = redirectResponse;
+module.exports.setRedirectResponse = setRedirectResponse;
