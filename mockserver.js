@@ -333,12 +333,6 @@ const mockserver = {
 	},
 	'handle': function (req, res) {
 		getBody(req, function (body) {
-			if (redirectResponse) {
-				res
-					.writeHead(redirectResponse.statusCode, redirectResponse.statusMessage, redirectResponse.headers)
-					.end(body);
-			}
-
 			req.body = body;
 			const url = redirectResponse ? "/errors?status=" + redirectResponse.statusCode.toString() : req.url;
 			let path = url;
