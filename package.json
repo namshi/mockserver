@@ -17,14 +17,7 @@
 		"type": "git",
 		"url": "https://github.com/namshi/mockserver"
 	},
-	"keywords": [
-		"test",
-		"mock",
-		"api",
-		"webservice",
-		"rest",
-		"namshi"
-	],
+	"keywords": ["test", "mock", "api", "webservice", "rest", "namshi"],
 	"author": "Mohammad Hallal <mohd.hallal@gmail.com>",
 	"license": "MIT",
 	"bugs": {
@@ -59,13 +52,7 @@
 		}
 	},
 	"lint-staged": {
-		"*.(js|json)": [
-			"prettier --write",
-			"git add"
-		],
-		"*.js": [
-			"eslint --fix",
-			"git add"
-		]
+		"*.(js|json)": ["prettier --write", "git add"],
+		"*.js": ["eslint --fix", "git add"]
 	}
 }

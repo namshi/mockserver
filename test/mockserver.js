@@ -1,5 +1,5 @@
 const MockReq = require('mock-req');
-const { assert } = require("chai");
+const { assert } = require('chai');
 const mockserver = require('./../mockserver');
 const path = require('path');
 const Monad = require('../monad');
@@ -78,7 +78,10 @@ describe('mockserver', function () {
 
 			assert.strictEqual(res.body, 'Welcome!');
 			assert.strictEqual(res.status, 200);
-			assert.strictEqual(JSON.stringify(res.headers), '{"Content-Type":"text"}');
+			assert.strictEqual(
+				JSON.stringify(res.headers),
+				'{"Content-Type":"text"}'
+			);
 		});
 
 		it('should return 404 if the mock does not exist', function () {
@@ -93,7 +96,10 @@ describe('mockserver', function () {
 
 			assert.strictEqual(res.status, 200);
 			assert.strictEqual(res.body, 'Welcome!');
-			assert.strictEqual(JSON.stringify(res.headers), '{"Content-Type":"text"}');
+			assert.strictEqual(
+				JSON.stringify(res.headers),
+				'{"Content-Type":"text"}'
+			);
 		});
 
 		it('should be able to handle multiple headers', function () {
@@ -315,14 +321,14 @@ describe('mockserver', function () {
 			processRequest('/import', 'GET');
 
 			assert.strictEqual(res.status, 200);
-			assert.deepStrictEqual(JSON.parse(res.body), { "foo": "bar" });
+			assert.deepStrictEqual(JSON.parse(res.body), { 'foo': 'bar' });
 		});
 
 		it('should be able to handle eval', function () {
 			processRequest('/eval', 'GET');
 
 			assert.strictEqual(res.status, 200);
-			assert.strictEqual(res.body, JSON.stringify({ "foo": "bar" }) + '\n');
+			assert.strictEqual(res.body, JSON.stringify({ 'foo': 'bar' }) + '\n');
 		});
 
 		it('should be able to handle imports with content around import', function () {

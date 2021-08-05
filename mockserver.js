@@ -334,13 +334,15 @@ const mockserver = {
 	'handle': function (req, res) {
 		getBody(req, function (body) {
 			req.body = body;
-			const url = redirectResponse ? "/errors?status=" + redirectResponse.statusCode.toString() : req.url;
+			const url = redirectResponse
+				? '/errors?status=' + redirectResponse.statusCode.toString()
+				: req.url;
 			let path = url;
 
 			const queryIndex = url.indexOf('?'),
 				query =
 					queryIndex >= 0 ? url.substring(queryIndex).replace(/\?/g, '') : '',
-				method = redirectResponse ? "GET" : req.method.toUpperCase(),
+				method = redirectResponse ? 'GET' : req.method.toUpperCase(),
 				headers = [];
 
 			if (queryIndex > 0) {
