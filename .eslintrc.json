@@ -1,0 +1,17 @@
+{
+	"extends": ["plugin:prettier/recommended"],
+	"env": {
+		"node": true,
+		"es6": true,
+		"browser": true
+	},
+	"rules": {
+		"no-unused-vars": "off",
+		"semi": "error",
+		"no-console": "off",
+		"quote-props": ["error", "always"]
+	},
+	"parserOptions": {
+		"ecmaVersion": 2021
+	}
+}
